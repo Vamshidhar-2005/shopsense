@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShopSense - Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/admin.css">
 </head>
 <body>
@@ -13,12 +16,13 @@
       <div class="sidebar-brand">
         <div class="sidebar-logo">
           <svg viewBox="0 0 24 24">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
         </div>
-        <span class="sidebar-title">ShopSense</span>
+        <div class="brand-text-container">
+          <span class="sidebar-title">ShopSense</span>
+          <span class="sidebar-subtitle">Admin Portal</span>
+        </div>
       </div>
 
       <nav class="sidebar-nav">
@@ -58,9 +62,13 @@
     <main class="admin-main">
       <!-- 1. DASHBOARD PAGE VIEW -->
       <section id="dashboardView" class="page-view active">
-        <div class="page-header">
-          <h1 class="page-title">Admin Dashboard</h1>
-          <p class="page-subtitle">Marketplace Vendor Status &amp; Platform Metrics</p>
+        <!-- Admin Hero Banner -->
+        <div class="admin-hero-banner">
+          <div class="hero-banner-content">
+            <div class="hero-status-pill">🛡️ Platform Status: Healthy</div>
+            <h1 class="hero-banner-title">Welcome, Administrator! 👋</h1>
+            <p class="hero-banner-text">Overview of platform health, vendor onboarding approvals, and overall marketplace performance metrics.</p>
+          </div>
         </div>
 
         <!-- 4 Summary Cards -->
@@ -166,7 +174,7 @@
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <label for="statusFilterSelect" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Status:</label>
             <select id="statusFilterSelect" class="filter-select">
-              <option value="All">All</option>
+              <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Approved">Approved</option>
               <option value="Suspended">Suspended</option>

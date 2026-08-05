@@ -3,44 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}ShopSense Auth Portal{% endblock %}</title>
+  <title>{% block title %}ShopSense Portal{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/style.css">
   {% block head_extra %}{% endblock %}
 </head>
-<body>
-  <div class="auth-container">
-    <!-- Brand Header -->
-    <div class="brand-header">
-      <div class="brand-logo" title="ShopSense E-Commerce">
-        <svg viewBox="0 0 24 24">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <path d="M16 10a4 4 0 0 1-8 0"></path>
-        </svg>
-      </div>
-      <h1 class="brand-title">ShopSense</h1>
-      {% block header_headings %}{% endblock %}
-    </div>
-
-    <!-- Alert Toast Notification -->
-    <div id="alertToast" class="alert-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span id="alertMessage">Notification message</span>
-    </div>
-
-    <!-- Page Content -->
+<body class="auth-body">
+  <div class="auth-wrapper">
     {% block content %}{% endblock %}
-
-    <!-- Footer -->
-    <div class="auth-footer">
-      {% block footer_content %}{% endblock %}
-    </div>
   </div>
-
   {% block scripts %}{% endblock %}
 </body>
 </html>

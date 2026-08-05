@@ -90,17 +90,27 @@
     <main class="vendor-main">
       <!-- 1. DASHBOARD PAGE VIEW -->
       <section id="dashboardView" class="page-view active">
-        <div class="page-header" style="display: flex; align-items: center; justify-space-between: space-between; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h1 class="page-title">Vendor Dashboard</h1>
-            <p class="page-welcome">Welcome, <span id="vendorWelcomeName">Vendor Owner</span></p>
+        <!-- Hero Welcome Banner Card -->
+        <div class="dashboard-hero-banner">
+          <div class="hero-banner-content">
+            <div class="hero-status-pill">🟢 Live Store Active</div>
+            <h1 class="hero-banner-title">Welcome back, <span id="vendorWelcomeName">Vendor Owner</span>! 👋</h1>
+            <p class="hero-banner-text">Here is what is happening with your store today. Manage your catalog, track incoming customer sales, and analyze live store revenue.</p>
+            <div class="hero-banner-actions">
+              <button type="button" id="btnOpenSimulateOrderModal" class="btn-simulate-sale" onclick="openSimulateOrderModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Simulate Customer Sale
+              </button>
+              <button type="button" class="btn-add-quick" onclick="switchTab('addProduct')">
+                + Add New Product
+              </button>
+            </div>
           </div>
-          <button type="button" id="btnOpenSimulateOrderModal" class="btn-simulate-sale" onclick="openSimulateOrderModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            Simulate Customer Sale
-          </button>
+          <div class="hero-banner-graphic">
+            <img src="/static/images/dashboard_banner.jpg" alt="Dashboard Banner Graphic" class="hero-graphic-img-dash" onerror="this.style.display='none';" />
+          </div>
         </div>
 
         <!-- 4 Summary Cards -->
