@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}ShopSense - Vendor Registration{% endblock %}
+
+{% block header_headings %}
+  <h2 class="page-heading">Register as a Vendor</h2>
+  <p class="page-subtitle">Fill in your details to apply for a vendor account.</p>
+{% endblock %}
+
+{% block content %}
+<form id="registerForm" class="auth-form" novalidate>
+  <div class="form-group">
+    <label for="fullNameInput" class="form-label">Full Name <span class="required-star">*</span></label>
+    <div class="input-wrapper">
+      <input 
+        type="text" 
+        id="fullNameInput" 
+        class="form-input" 
+        placeholder="John Doe" 
+        required 
+        autocomplete="name"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="businessNameInput" class="form-label">Business Name <span class="required-star">*</span></label>
+    <div class="input-wrapper">
+      <input 
+        type="text" 
+        id="businessNameInput" 
+        class="form-input" 
+        placeholder="Apex Traders LLC" 
+        required 
+        autocomplete="organization"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="regEmailInput" class="form-label">Email Address <span class="required-star">*</span></label>
+    <div class="input-wrapper">
+      <input 
+        type="email" 
+        id="regEmailInput" 
+        class="form-input" 
+        placeholder="email@example.com" 
+        required 
+        autocomplete="email"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="regPasswordInput" class="form-label">Password <span class="required-star">*</span></label>
+    <div class="input-wrapper">
+      <input 
+        type="password" 
+        id="regPasswordInput" 
+        class="form-input has-toggle" 
+        placeholder="Min. 6 characters" 
+        minlength="6" 
+        required 
+        autocomplete="new-password"
+      />
+      <button type="button" id="regTogglePasswordBtn" class="password-toggle-btn" title="Show password">
+        <svg viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="phoneInput" class="form-label">Phone Number <span style="color: var(--text-light); font-weight: normal;">(Optional)</span></label>
+    <div class="input-wrapper">
+      <input 
+        type="tel" 
+        id="phoneInput" 
+        class="form-input" 
+        placeholder="+1 (555) 000-0000" 
+        autocomplete="tel"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="addressInput" class="form-label">Business Address <span style="color: var(--text-light); font-weight: normal;">(Optional)</span></label>
+    <div class="input-wrapper">
+      <textarea 
+        id="addressInput" 
+        class="form-input" 
+        placeholder="123 Commerce St, Suite 400, New York, NY 10001" 
+        rows="2"
+      ></textarea>
+    </div>
+  </div>
+
+  <button type="submit" id="registerSubmitBtn" class="btn-submit">
+    Submit Registration
+  </button>
+</form>
+{% endblock %}
+
+{% block footer_content %}
+  <span>Already have an account? <a href="/login">Sign in</a></span>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/register.js"></script>
+{% endblock %}

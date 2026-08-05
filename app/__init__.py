@@ -1,0 +1,1 @@
+# ShopSense FastAPI Package Initialization
