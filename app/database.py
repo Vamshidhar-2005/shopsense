@@ -29,14 +29,25 @@ def get_engine():
         
         try:
             inspector = inspect(engine)
-            if "vendors" in inspector.get_table_names():
-                columns = [c["name"] for c in inspector.get_columns("vendors")]
-                if "status" not in columns:
-                    logger.info("Detected outdated SQLite fallback schema. Refreshing fallback DB...")
-                    engine.dispose()
-                    if os.path.exists(sqlite_file):
-                        os.remove(sqlite_file)
-                    engine = create_engine(FALLBACK_SQLITE_URL, connect_args={"check_same_thread": False})
+            tables = inspector.get_table_names()
+            need_reset = False
+            
+            if "vendors" in tables:
+                vendor_cols = [c["name"] for c in inspector.get_columns("vendors")]
+                if "status" not in vendor_cols:
+                    need_reset = True
+
+            if "orders" in tables:
+                order_cols = [c["name"] for c in inspector.get_columns("orders")]
+                if "customer_name" not in order_cols:
+                    need_reset = True
+
+            if need_reset:
+                logger.info("Detected outdated SQLite fallback schema. Refreshing fallback DB...")
+                engine.dispose()
+                if os.path.exists(sqlite_file):
+                    os.remove(sqlite_file)
+                engine = create_engine(FALLBACK_SQLITE_URL, connect_args={"check_same_thread": False})
         except Exception:
             pass
 

@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Request, Depends, HTTPException, Query, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import engine, Base, get_db
-from app import models, schemas, crud
+from app import models, schemas, crud, forecasting, sentiment, vector_search
 
 # Automatically create database tables on startup
 Base.metadata.create_all(bind=engine)
@@ -60,9 +60,13 @@ def startup_db_seed():
         vendor_gmail.hashed_password = crud.hash_password("vendor123")
         db.commit()
 
-    # Clean up and assign exact images to existing products based on product name
+    # Clean up product names: remove "Milestone 2" and test status words from product names
     existing_products = db.query(models.Product).all()
     for p in existing_products:
+        cleaned_name = p.name
+        for noisy in ["Milestone 2 ", "Milestone 2", "Low Stock ", "Out of Stock ", "Healthy Stock "]:
+            cleaned_name = cleaned_name.replace(noisy, "")
+        p.name = cleaned_name.strip() or "Standard Product"
         smart_url = crud.get_default_image_url(p.name, p.category)
         if not p.image_url or "photo-1505740420928-5e560c06d30e" in p.image_url or "photo-1523275335684-37898b6baf30" in p.image_url:
             p.image_url = smart_url
@@ -349,6 +353,129 @@ def delete_vendor_product(
     return {
         "success": True,
         "message": "Product removed from catalog successfully."
+    }
+
+# --- Milestone 2: Inventory Intelligence & Customer Analytics Endpoints ---
+
+@app.get("/api/vendor/inventory")
+def get_vendor_inventory(
+    threshold: int = Query(5, ge=1, le=100, description="Stock alert threshold limit"),
+    vendor_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Milestone 2 API: Inventory Tracking & Low-Stock Alerts.
+    Tracks stock levels, out-of-stock items, and suggested reorder quantities.
+    """
+    vid = vendor_id or 1
+    inventory_data = crud.get_vendor_inventory_tracking(db, vid, threshold=threshold)
+    return {
+        "success": True,
+        "data": inventory_data
+    }
+
+@app.get("/api/vendor/customer-segmentation")
+def get_customer_segmentation(
+    vendor_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Milestone 2 API: SQL-Based Customer Segmentation.
+    Groups buyers into VIP (spend >= $500), Regular ($100-$499.99), and Bronze (< $100) spend tiers.
+    """
+    vid = vendor_id or 1
+    segmentation_data = crud.get_customer_segmentation_analytics(db, vid)
+    return {
+        "success": True,
+        "data": segmentation_data
+    }
+
+@app.get("/api/vendor/recommendations")
+def get_rule_based_recommendations(
+    vendor_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Milestone 2 API: Rule-Based Recommendation Engine.
+    Generates product cross-sell recommendations based on category sales volume.
+    """
+    vid = vendor_id or 1
+    recommendations_data = crud.get_rule_based_recommendations(db, vid)
+    return {
+        "success": True,
+        "data": recommendations_data
+    }
+
+# --- Milestone 2 Advanced / Optional Features Endpoints ---
+
+@app.get("/api/vendor/forecasting")
+def get_inventory_forecasting(
+    days: int = Query(30, ge=7, le=90, description="Forecast window in days"),
+    vendor_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Milestone 2 Advanced Feature: Machine Learning Inventory Forecasting.
+    Predicts future inventory demand and stockout risks based on historical sales velocity.
+    """
+    vid = vendor_id or 1
+    orders = db.query(models.Order).filter(models.Order.vendor_id == vid, models.Order.status == "Completed").all()
+    products = db.query(models.Product).filter(models.Product.vendor_id == vid).all()
+
+    order_dicts = [{"units": o.units, "created_at": o.created_at} for o in orders]
+    total_stock = sum(p.stock for p in products)
+
+    forecast_data = forecasting.forecast_inventory_demand(order_dicts, total_stock, forecast_days=days)
+    return {
+        "success": True,
+        "feature": "Machine Learning Time-Series Inventory Forecasting",
+        "data": forecast_data
+    }
+
+@app.post("/api/vendor/reviews/sentiment")
+def analyze_reviews_sentiment(
+    reviews: List[str] = Query(..., description="List of customer product review text strings")
+):
+    """
+    Milestone 2 Advanced Feature: LLM Sentiment Analysis.
+    Analyzes customer reviews, calculates sentiment scores, and summarizes top pros and cons.
+    """
+    sentiment_data = sentiment.summarize_vendor_reviews_sentiment(reviews)
+    return {
+        "success": True,
+        "feature": "LLM Sentiment Analysis Pipeline",
+        "data": sentiment_data
+    }
+
+@app.get("/api/vendor/semantic-search")
+def vector_semantic_search(
+    query: str = Query(..., min_length=1, description="Natural language search query"),
+    vendor_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Milestone 2 Advanced Feature: Vector Search & Semantic Recommendations.
+    Generates text vector embeddings for products and ranks results using cosine similarity.
+    """
+    vid = vendor_id or 1
+    products = db.query(models.Product).filter(models.Product.vendor_id == vid).all()
+    prod_dicts = [{
+        "id": p.id,
+        "name": p.name,
+        "category": p.category,
+        "price": float(p.price),
+        "stock": p.stock,
+        "image_url": crud.get_product_image_url(p),
+        "ai_description": p.ai_description or ""
+    } for p in products]
+
+    search_results = vector_search.semantic_vector_search(query, prod_dicts)
+    return {
+        "success": True,
+        "feature": "Vector Search Semantic Embedding Recommendations",
+        "query": query,
+        "total_results": len(search_results),
+        "results": search_results
     }
 
 # --- Admin API Endpoints ---

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dashboard: document.getElementById('navDashboard'),
     catalog: document.getElementById('navCatalog'),
     addProduct: document.getElementById('navAddProduct'),
+    m2Intelligence: document.getElementById('navM2Intelligence'),
     insights: document.getElementById('navInsights'),
     profile: document.getElementById('navProfile')
   };
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dashboard: document.getElementById('dashboardView'),
     catalog: document.getElementById('catalogView'),
     addProduct: document.getElementById('addProductView'),
+    m2Intelligence: document.getElementById('m2IntelligenceView'),
     insights: document.getElementById('insightsView'),
     profile: document.getElementById('profileView')
   };
@@ -104,12 +106,19 @@ document.addEventListener('DOMContentLoaded', () => {
       loadVendorDashboardData();
     } else if (targetKey === 'catalog') {
       loadCatalogData();
+    } else if (targetKey === 'm2Intelligence') {
+      loadInsightsData();
+      if (typeof window.loadMlForecasting === 'function') window.loadMlForecasting(30);
+      if (typeof window.testReviewSentiment === 'function') window.testReviewSentiment();
+      if (typeof window.testVectorSearch === 'function') window.testVectorSearch();
     } else if (targetKey === 'insights') {
       loadInsightsData();
     } else if (targetKey === 'profile') {
       loadVendorProfileData();
     }
   }
+
+  window.switchTab = switchTab;
 
   Object.keys(navItems).forEach(key => {
     if (navItems[key]) {
@@ -256,8 +265,189 @@ document.addEventListener('DOMContentLoaded', () => {
         cachedInsightsData = json.insights;
         renderInsightsView(cachedInsightsData);
       }
+
+      // Fetch Milestone 2 Inventory Analytics
+      fetchMilestone2InventoryData();
+      // Fetch Milestone 2 Customer Segmentation Analytics
+      fetchMilestone2CustomerSegmentationData();
+      // Fetch Milestone 2 Rule-Based Recommendations
+      fetchMilestone2RecommendationsData();
     } catch (err) {
       console.error('Error loading insights data:', err);
+    }
+  }
+
+  async function fetchMilestone2InventoryData() {
+    try {
+      const res = await fetch(`/api/vendor/inventory?vendor_id=${storedVendorId}&threshold=5`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const d = json.data;
+        const sum = d.summary || {};
+        const alerts = d.alerts || {};
+
+        const invUnits = document.getElementById('m2InventoryUnits');
+        const stockVal = document.getElementById('m2StockValuation');
+        const lowAlerts = document.getElementById('m2LowStockAlerts');
+        const outAlerts = document.getElementById('m2OutOfStockCount');
+        const alertBoxContainer = document.getElementById('m2LowStockItemsContainer');
+
+        if (invUnits) invUnits.textContent = sum.total_inventory_units || 0;
+        if (stockVal) stockVal.textContent = '$' + Number(sum.total_inventory_value || 0).toFixed(2);
+        if (lowAlerts) lowAlerts.textContent = sum.low_stock_count || 0;
+        if (outAlerts) outAlerts.textContent = sum.out_of_stock_count || 0;
+
+        const actionItems = [...(alerts.out_of_stock_items || []), ...(alerts.low_stock_items || [])];
+
+        if (alertBoxContainer) {
+          if (actionItems.length === 0) {
+            alertBoxContainer.innerHTML = `
+              <div style="padding: 1rem; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; color: #34d399; font-size: 0.9rem; font-weight: 700;">
+                ✅ All inventory levels are healthy! No immediate restock required.
+              </div>
+            `;
+          } else {
+            alertBoxContainer.innerHTML = `
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Current Stock</th>
+                      <th>Alert Status</th>
+                      <th>Suggested Reorder</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${actionItems.map(item => `
+                      <tr>
+                        <td>
+                          <div class="product-cell">
+                            <img src="${item.image_url}" alt="${escapeHtml(item.name)}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150';" />
+                            <span class="product-title">${escapeHtml(item.name)}</span>
+                          </div>
+                        </td>
+                        <td><span class="category-badge">${escapeHtml(item.category)}</span></td>
+                        <td><span class="price-text">$${Number(item.price).toFixed(2)}</span></td>
+                        <td style="font-weight: 800; color: ${item.is_out_of_stock ? '#f87171' : '#fbbf24'};">${item.stock} units</td>
+                        <td>
+                          <span class="badge-stock ${item.is_out_of_stock ? 'badge-out-of-stock' : 'badge-active'}" style="background: ${item.is_out_of_stock ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}; color: ${item.is_out_of_stock ? '#f87171' : '#fbbf24'};">
+                            ${item.status}
+                          </span>
+                        </td>
+                        <td style="font-weight: 800; color: #38bdf8;">+${item.suggested_reorder_qty} units</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching Milestone 2 inventory tracking:', err);
+    }
+  }
+
+  async function fetchMilestone2CustomerSegmentationData() {
+    try {
+      const res = await fetch(`/api/vendor/customer-segmentation?vendor_id=${storedVendorId}`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const customers = (json.data || {}).all_customers || [];
+        const tableBody = document.getElementById('customerOverviewTableBody');
+
+        if (tableBody) {
+          if (customers.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="3" style="padding: 1.5rem; text-align: center; color: #94a3b8;">No customer purchase records available yet.</td>
+              </tr>
+            `;
+          } else {
+            tableBody.innerHTML = customers.map(c => {
+              let badgeColor = '#34d399';
+              let badgeBg = 'rgba(16, 185, 129, 0.15)';
+              let badgeBorder = '#10b981';
+              let tierText = c.tier || 'New Customer';
+
+              if (tierText.includes('Regular')) {
+                badgeColor = '#38bdf8';
+                badgeBg = 'rgba(56, 189, 248, 0.15)';
+                badgeBorder = '#0284c7';
+              } else if (tierText.includes('New') || tierText.includes('Bronze')) {
+                badgeColor = '#fbbf24';
+                badgeBg = 'rgba(245, 158, 11, 0.15)';
+                badgeBorder = '#d97706';
+              }
+
+              return `
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+                  <td style="padding: 1.15rem 1.25rem; font-weight: 700; color: #ffffff; font-size: 0.95rem;">${escapeHtml(c.name || 'Verified Buyer')}</td>
+                  <td style="padding: 1.15rem 1.25rem; font-weight: 800; color: #ffffff; font-size: 0.95rem;">$${Number(c.total_spend || 0).toFixed(2)}</td>
+                  <td style="padding: 1.15rem 1.25rem; text-align: right;">
+                    <span style="display: inline-block; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; background: ${badgeBg}; border: 1px solid ${badgeBorder}; color: ${badgeColor};">
+                      ${escapeHtml(tierText)}
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+
+        if (vipCount) vipCount.textContent = sum.vip_count || 0;
+        if (vipRev) vipRev.textContent = `Revenue: $${Number(sum.vip_revenue || 0).toFixed(2)}`;
+        if (regCount) regCount.textContent = sum.regular_count || 0;
+        if (regRev) regRev.textContent = `Revenue: $${Number(sum.regular_revenue || 0).toFixed(2)}`;
+        if (broCount) broCount.textContent = sum.bronze_count || 0;
+        if (broRev) broRev.textContent = `Revenue: $${Number(sum.bronze_revenue || 0).toFixed(2)}`;
+      }
+    } catch (err) {
+      console.error('Error fetching customer segmentation:', err);
+    }
+  }
+
+  async function fetchMilestone2RecommendationsData() {
+    try {
+      const res = await fetch(`/api/vendor/recommendations?vendor_id=${storedVendorId}`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const recs = (json.data || {}).recommendations || [];
+        const container = document.getElementById('m2RecommendationsContainer');
+
+        if (container) {
+          if (recs.length === 0) {
+            container.innerHTML = `
+              <p style="color: #94a3b8; font-size: 0.9rem;">Add items to your catalog to generate rule-based cross-sell recommendations.</p>
+            `;
+          } else {
+            container.innerHTML = `
+              <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                ${recs.map(r => `
+                  <div class="stat-card" style="flex-direction: column; align-items: flex-start; gap: 0.85rem;">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                      <img src="${r.image_url}" alt="${escapeHtml(r.product)}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150';" />
+                      <div>
+                        <h4 style="font-size: 1rem; font-weight: 800; color: #ffffff;">${escapeHtml(r.product)}</h4>
+                        <span class="category-badge">${escapeHtml(r.category)}</span>
+                      </div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; font-weight: 600;">💡 ${escapeHtml(r.recommendation_reason)}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">🛍️ ${escapeHtml(r.suggested_bundle)}</div>
+                    <div style="font-size: 1.05rem; font-weight: 800; color: #34d399;">$${Number(r.price).toFixed(2)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching recommendations:', err);
     }
   }
 
@@ -862,6 +1052,145 @@ document.addEventListener('DOMContentLoaded', () => {
     return String(str).replace(/'/g, "\\'");
   }
 
+  // Milestone 2 Interactive AI Hub Handlers
+  window.loadMlForecasting = async function(days = 30) {
+    ['btnFc30', 'btnFc60', 'btnFc90'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(`btnFc${days}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    try {
+      const res = await fetch(`/api/vendor/forecasting?vendor_id=${storedVendorId}&days=${days}`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const d = json.data;
+        const vEl = document.getElementById('fcDailyVelocity');
+        const pEl = document.getElementById('fcPredictedDemand');
+        const sEl = document.getElementById('fcDaysToStockout');
+        const rEl = document.getElementById('fcReorderQty');
+        const mEl = document.getElementById('fcMessageNotice');
+
+        if (vEl) vEl.textContent = `${d.daily_sales_velocity} units/day`;
+        if (pEl) pEl.textContent = `${d.predicted_demand_units} units`;
+        if (sEl) sEl.textContent = `${d.days_until_stockout} days`;
+        if (rEl) rEl.textContent = `${d.recommended_reorder_qty} units`;
+        if (mEl) mEl.textContent = `🤖 AI Prediction (${days} Days): ${d.message}`;
+      }
+    } catch (err) {
+      console.error('Error loading ML forecasting:', err);
+    }
+  };
+
+  window.testReviewSentiment = async function() {
+    const inputEl = document.getElementById('reviewTestInput');
+    const boxEl = document.getElementById('sentimentResultsBox');
+    const text = inputEl ? inputEl.value.trim() : '';
+
+    if (!text) {
+      alert('Please enter review text to analyze.');
+      return;
+    }
+
+    if (boxEl) boxEl.innerHTML = '<p style="color: #38bdf8;">Running LLM Sentiment Analysis pipeline...</p>';
+
+    try {
+      const res = await fetch(`/api/vendor/reviews/sentiment?reviews=${encodeURIComponent(text)}`, {
+        method: 'POST'
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const d = json.data;
+        const overall = d.overall_sentiment || 'Neutral';
+        const scorePct = Math.round((d.average_score || 0) * 100);
+        const pros = d.top_pros || [];
+        const cons = d.top_cons || [];
+
+        boxEl.innerHTML = `
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 12px;">
+            <div>
+              <div style="font-size: 0.8rem; color: #94a3b8;">Overall Sentiment</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: ${overall === 'Positive' ? '#34d399' : (overall === 'Negative' ? '#f87171' : '#fbbf24')};">${overall}</div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #94a3b8;">Satisfaction Score</div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: #38bdf8;">${scorePct}% Confidence</div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">Top Pros</div>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                ${pros.map(p => `<span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">+ ${escapeHtml(p)}</span>`).join('')}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">Top Cons</div>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                ${cons.map(c => `<span style="background: rgba(239,68,68,0.2); color: #f87171; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">- ${escapeHtml(c)}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    } catch (err) {
+      if (boxEl) boxEl.innerHTML = '<p style="color: #f87171;">Failed to perform sentiment analysis.</p>';
+    }
+  };
+
+  window.testVectorSearch = async function() {
+    const inputEl = document.getElementById('vecQueryInput');
+    const boxEl = document.getElementById('vectorSearchResultsBox');
+    const query = inputEl ? inputEl.value.trim() : '';
+
+    if (!query) {
+      alert('Please enter a search term.');
+      return;
+    }
+
+    if (boxEl) boxEl.innerHTML = '<p style="color: #a855f7;">Calculating text vector embeddings & cosine similarity...</p>';
+
+    try {
+      const res = await fetch(`/api/vendor/semantic-search?vendor_id=${storedVendorId}&query=${encodeURIComponent(query)}`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const results = json.results || [];
+        if (results.length === 0) {
+          boxEl.innerHTML = '<p style="color: #94a3b8;">No matching products found in vector space.</p>';
+        } else {
+          boxEl.innerHTML = `
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+              ${results.map(r => `
+                <div class="stat-card" style="flex-direction: column; align-items: flex-start; gap: 0.75rem; border: 1px solid rgba(168, 85, 247, 0.3);">
+                  <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <span class="category-badge">${escapeHtml(r.category)}</span>
+                    <span style="background: rgba(168, 85, 247, 0.25); color: #c084fc; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 99px;">
+                      🎯 ${r.match_confidence} Cosine Match
+                    </span>
+                  </div>
+                  <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <img src="${r.image_url}" alt="${escapeHtml(r.name)}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150';" />
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">${escapeHtml(r.name)}</h4>
+                      <span style="font-size: 0.85rem; font-weight: 800; color: #34d399;">$${Number(r.price).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      }
+    } catch (err) {
+      if (boxEl) boxEl.innerHTML = '<p style="color: #f87171;">Failed to perform vector search.</p>';
+    }
+  };
+
   // Initial load
-  switchTab('dashboard');
+  const initialHash = window.location.hash.replace('#', '');
+  if (initialHash === 'catalog') switchTab('catalog');
+  else if (initialHash === 'add-product') switchTab('addProduct');
+  else if (initialHash === 'm2-intelligence') switchTab('m2Intelligence');
+  else if (initialHash === 'insights') switchTab('insights');
+  else if (initialHash === 'profile') switchTab('profile');
+  else switchTab('dashboard');
 });
