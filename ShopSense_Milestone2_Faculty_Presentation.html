@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopSense Milestone 2 - Faculty Presentation</title>
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Presentation Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 10;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent-cyan);
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: var(--accent-cyan);
+      color: #0f172a;
+    }
+
+    .slide-counter {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Slide Viewport */
+    .slide-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 36px 48px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.4s ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Typography */
+    .slide-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .slide-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Slide Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .card-box {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+    }
+
+    ul.slide-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.slide-list li {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    ul.slide-list li::before {
+      content: "•";
+      color: var(--accent-cyan);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+
+    /* Data Tables */
+    .ppt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .ppt-table th {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 800;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .ppt-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+      color: #e2e8f0;
+    }
+
+    /* Code & Equation Box */
+    .code-box {
+      background: #020617;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 0.88rem;
+      color: #38bdf8;
+      overflow-x: auto;
+    }
+
+    /* Speaker Notes Box */
+    .speaker-notes {
+      margin-top: 16px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 12px 18px;
+    }
+
+    .speaker-notes-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .speaker-notes-text {
+      font-size: 0.9rem;
+      color: #fef08a;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+      width: 8.33%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Controls -->
+  <div class="header-bar">
+    <div class="brand-title">
+      <span>📊 ShopSense Milestone 2 Faculty Slide Deck</span>
+    </div>
+    <div class="controls">
+      <button class="btn-nav" onclick="prevSlide()">◀ Previous</button>
+      <span class="slide-counter" id="slideCounter">Slide 1 of 12</span>
+      <button class="btn-nav" onclick="nextSlide()">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Slide Viewport -->
+  <div class="slide-container">
+
+    <!-- SLIDE 1 -->
+    <div class="slide active">
+      <div>
+        <span class="slide-tag">Slide 1 of 12</span>
+        <h1 class="slide-title">ShopSense Milestone 2: Academic Faculty Presentation</h1>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="card-box">
+            <h3 class="card-title">📌 Project Information</h3>
+            <ul class="slide-list">
+              <li><strong>Project Title:</strong> ShopSense Multi-Vendor E-Commerce Platform</li>
+              <li><strong>Milestone Scope:</strong> Milestone 2 — Inventory Intelligence & Customer Analytics</li>
+              <li><strong>Core Objective:</strong> Introduce analytics, forecasting, and customer behavior insights.</li>
+            </ul>
+          </div>
+          <div class="card-box">
+            <h3 class="card-title">🛠️ Technical Stack</h3>
+            <ul class="slide-list">
+              <li><strong>Backend Engine:</strong> Python 3.12, FastAPI, Uvicorn ASGI</li>
+              <li><strong>Database Layer:</strong> SQLAlchemy 2.0, MySQL / SQLite Fallback</li>
+              <li><strong>AI & Math Modules:</strong> ARIMA(1,1,1) Time-Series, Dense Vector Cosine Engine</li>
+              <li><strong>Frontend UI:</strong> HTML5, Glassmorphism CSS3, JavaScript ES6</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script (What to say out loud)</div>
+        <div class="speaker-notes-text">"Respected Faculty Members, Good Morning. Today we present Milestone 2 of ShopSense: a Multi-Vendor E-Commerce Platform. Our core objective is to introduce real-time analytics, predictive forecasting, and customer behavior insights."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 2 of 12</span>
+        <h1 class="slide-title">Executive Summary & Primary Objectives Matrix</h1>
+      </div>
+      <div class="slide-content">
+        <table class="ppt-table">
+          <thead>
+            <tr>
+              <th>Feature Objective</th>
+              <th>REST API Endpoint</th>
+              <th>Technical Mechanism</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Inventory Tracking</strong></td>
+              <td><code>GET /api/vendor/inventory</code></td>
+              <td>Real-time stock threshold alerts (stock &le; 5) & warehouse valuation</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+            <tr>
+              <td><strong>SQL Customer Segmentation</strong></td>
+              <td><code>GET /api/vendor/customer-segmentation</code></td>
+              <td>SQL aggregation into Premium (&ge; $500), Regular ($100-$499), & New (&lt; $100)</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+            <tr>
+              <td><strong>Rule Recommendations</strong></td>
+              <td><code>GET /api/vendor/recommendations</code></td>
+              <td>Category Champions ranking & cross-sell product bundling</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+            <tr>
+              <td><strong>ML Forecasting</strong></td>
+              <td><code>GET /api/vendor/forecasting</code></td>
+              <td>ARIMA(1,1,1) time-series model predicting 30/60/90-day demand</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+            <tr>
+              <td><strong>LLM Sentiment Analysis</strong></td>
+              <td><code>POST /api/vendor/reviews/sentiment</code></td>
+              <td>Review polarity scoring (-1.0 to +1.0) & Pros/Cons extraction</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+            <tr>
+              <td><strong>Vector Search</strong></td>
+              <td><code>GET /api/vendor/semantic-search</code></td>
+              <td>16-D dense embedding Cosine Similarity matching</td>
+              <td>🟢 100% Passed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Milestone 2 addresses merchant challenges: unpredictable inventory stockouts, uniform customer handling, and static search limits. All 3 Base Requirements and 3 Advanced AI Features are 100% complete."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 3 of 12</span>
+        <h1 class="slide-title">System Architecture & Asynchronous Sequence Flow</h1>
+      </div>
+      <div class="slide-content">
+        <div class="card-box">
+          <h3 class="card-title">🔄 End-to-End Sequence Execution Flow</h3>
+          <div class="code-box">
+1. Client UI Browser --(HTTP GET /api/vendor/forecasting)--> FastAPI Server
+2. FastAPI Server --(SQL Query Order History)--> SQLAlchemy ORM Layer
+3. SQLAlchemy Layer --(Return Daily Sales Vector)--> MySQL / SQLite Database
+4. FastAPI Server --(Pass Sales Vector)--> ARIMA(1,1,1) Time-Series Engine
+5. ARIMA Engine --(Calculate AR Lag & MA Residuals)--> Compute 30-Day Demand Projection
+6. FastAPI Server --(Return JSON Response)--> Client UI Renders Demand Velocity & Reorder Qty
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"As shown in our execution flow, when a vendor requests demand forecasting, FastAPI retrieves sales history vectors from SQLAlchemy, fits ARIMA model parameters in real-time, and returns predicted demand velocity."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 4 of 12</span>
+        <h1 class="slide-title">Base Requirement 1: Inventory Tracking & Low-Stock Alerts</h1>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="card-box">
+            <h3 class="card-title">📦 Key Functional Capabilities</h3>
+            <ul class="slide-list">
+              <li><strong>Real-time Unit Monitoring:</strong> Tracks exact stock units per SKU across catalog.</li>
+              <li><strong>Total Warehouse Valuation:</strong> Calculates total dollar value of warehouse inventory.</li>
+              <li><strong>Automated Stock Warnings:</strong> Flags items with stock &le; 5 as Low Stock or Out of Stock.</li>
+            </ul>
+          </div>
+          <div class="card-box">
+            <h3 class="card-title">📐 Mathematical Formulas</h3>
+            <div class="code-box">
+Warehouse Valuation = Σ (Price_i * Stock_i)
+
+Suggested Reorder Qty = max(20 - Stock_i, 10)
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Base Requirement 1 tracks inventory units, computes total warehouse valuation, automatically flags low stock items (<= 5 units), and calculates suggested restock quantities."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 5 of 12</span>
+        <h1 class="slide-title">Base Requirement 2: SQL Customer Spend Segmentation</h1>
+      </div>
+      <div class="slide-content">
+        <table class="ppt-table">
+          <thead>
+            <tr>
+              <th>Customer Spend Tier</th>
+              <th>Spend Threshold</th>
+              <th>UI Badge Styling</th>
+              <th>Sample Customers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🟢 <strong>Premium Customer</strong></td>
+              <td>Total Spend &ge; $500.00</td>
+              <td>Green Pill Badge (<code>#34d399</code>)</td>
+              <td>John ($2,850), Mike ($2,400), David ($1,850), Emma ($1,550), Robert ($1,200)</td>
+            </tr>
+            <tr>
+              <td>🔵 <strong>Regular Customer</strong></td>
+              <td>$100.00 &le; Spend &lt; $500.00</td>
+              <td>Blue Pill Badge (<code>#38bdf8</code>)</td>
+              <td>Sarah ($450), Daniel ($380), Jessica ($290), Christopher ($195)</td>
+            </tr>
+            <tr>
+              <td>🟡 <strong>New Customer</strong></td>
+              <td>Total Spend &lt; $100.00</td>
+              <td>Orange Pill Badge (<code>#fbbf24</code>)</td>
+              <td>Alex ($75), Sophia ($45), James ($30)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Base Requirement 2 aggregates customer order history by email and classifies buyers into three distinct spend tiers: Premium, Regular, and New Customers, rendered in our Customer Analytics table."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 6 of 12</span>
+        <h1 class="slide-title">Base Requirement 3: Rule-Based Recommendation System</h1>
+      </div>
+      <div class="slide-content">
+        <div class="card-box">
+          <h3 class="card-title">⚙️ Recommendation Engine Logic</h3>
+          <div class="code-box">
+Step 1: Aggregate sales volume per product across all completed orders
+Step 2: Identify top-selling "Category Champion" products in each category
+Step 3: Generate cross-sell product bundles (e.g. Volleyball -> Athletic Shoes)
+Step 4: Enforce product name uniqueness (seen_names set) to eliminate duplicate cards
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Base Requirement 3 identifies Category Champions based on order volume, creates cross-sell product bundles, and enforces strict deduplication."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 7 of 12</span>
+        <h1 class="slide-title">Advanced Feature 1: ML ARIMA Time-Series Demand Forecasting</h1>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="card-box">
+            <h3 class="card-title">📐 ARIMA(1,1,1) Equation</h3>
+            <div class="code-box">
+y_t = y_{t-1} + φ_1 * (y_{t-1} - μ) + θ_1 * ε_{t-1} + ε_t
+
+Where:
+• φ_1: Auto-Regressive (AR) lag coefficient
+• θ_1: Moving Average (MA) residual coefficient
+• μ: Mean differenced daily sales velocity
+            </div>
+          </div>
+          <div class="card-box">
+            <h3 class="card-title">📈 Forecasting Outputs</h3>
+            <ul class="slide-list">
+              <li><strong>Daily Velocity:</strong> Units sold per day over 30/60/90 days.</li>
+              <li><strong>Stockout Risk Days:</strong> Estimated days remaining until stock reaches zero.</li>
+              <li><strong>Safety Restock Qty:</strong> Recommended reorder quantity with 7-day safety buffer.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Advanced Feature 1 trains an ARIMA(1,1,1) time-series model. By calculating auto-regressive lag and moving average parameters on historical daily sales, it predicts future demand and reorder quantities."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 8 of 12</span>
+        <h1 class="slide-title">Advanced Feature 2: LLM Customer Review Sentiment Analysis</h1>
+      </div>
+      <div class="slide-content">
+        <div class="card-box">
+          <h3 class="card-title">💬 Review Pipeline Architecture</h3>
+          <div class="code-box">
+Input Customer Review: "Great quality running shoes! Really durable and fast shipping, but slightly tight fit."
+                                ↓
+                     LLM SENTIMENT PIPELINE
+                                ↓
+• Sentiment Category: Positive
+• Polarity Score: +0.80 (80% Satisfaction Confidence)
+• Extracted Pros: ["Great Quality", "Durable", "Fast Shipping"]
+• Extracted Cons: ["Slightly Tight Fit"]
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Advanced Feature 2 parses raw customer reviews, calculates continuous sentiment scores from -1.0 to +1.0, and automatically summarizes top product Pros and Cons for vendor feedback."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 9 of 12</span>
+        <h1 class="slide-title">Advanced Feature 3: Vector Search & Semantic Recommendations</h1>
+      </div>
+      <div class="slide-content">
+        <div class="grid-2col">
+          <div class="card-box">
+            <h3 class="card-title">📐 Vector Cosine Similarity</h3>
+            <div class="code-box">
+Similarity(A, B) = (A • B) / (||A|| * ||B||)
+
+Where A = Query Embedding Vector (16-D)
+      B = Product Embedding Vector (16-D)
+            </div>
+          </div>
+          <div class="card-box">
+            <h3 class="card-title">🔍 Match Confidence Output</h3>
+            <ul class="slide-list">
+              <li>Converts catalog descriptions into 16-dimensional dense vector embeddings.</li>
+              <li>Ranks products by Cosine Similarity match percentage (e.g. 🎯 100% Match).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Advanced Feature 3 converts product descriptions and queries into 16-dimensional dense vector embeddings and calculates Cosine Similarity scores to deliver contextual semantic recommendations."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 10 of 12</span>
+        <h1 class="slide-title">Empirical Verification & Automated Test Suite Results</h1>
+      </div>
+      <div class="slide-content">
+        <div class="code-box">
+================================================================================
+               MILESTONE 2 AUTOMATED VALIDATION SUITE RESULTS
+================================================================================
+[1/6] Inventory Tracking API (GET /api/vendor/inventory)         --> PASSED (200 OK)
+[2/6] SQL Customer Segmentation (GET /api/vendor/customer-seg)    --> PASSED (200 OK)
+[3/6] Rule Recommendations (GET /api/vendor/recommendations)     --> PASSED (200 OK)
+[4/6] ML ARIMA Forecasting (GET /api/vendor/forecasting)          --> PASSED (200 OK)
+[5/6] LLM Sentiment Analysis (POST /api/vendor/reviews/sentiment) --> PASSED (200 OK)
+[6/6] Vector Search Cosine Sim (GET /api/vendor/semantic-search)  --> PASSED (200 OK)
+================================================================================
+               ALL 6 VALIDATION SUITE TESTS PASSED 100%!
+================================================================================
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"Running our automated test suite in test_milestone2.py verifies that all 3 Base Requirements and 3 Advanced AI Features return HTTP 200 OK responses with 100% test passage."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 11 of 12</span>
+        <h1 class="slide-title">Live Demonstration & Navigation Links</h1>
+      </div>
+      <div class="slide-content">
+        <div class="card-box">
+          <h3 class="card-title">🌐 Live Browser URLs</h3>
+          <ul class="slide-list">
+            <li><strong>Vendor Milestone 2 Portal:</strong> <a href="http://localhost:8000/vendor/dashboard#m2-intelligence" target="_blank" style="color: #38bdf8;">http://localhost:8000/vendor/dashboard#m2-intelligence</a></li>
+            <li><strong>Customer Analytics Table:</strong> <a href="http://localhost:8000/vendor/dashboard#insights" target="_blank" style="color: #38bdf8;">http://localhost:8000/vendor/dashboard#insights</a></li>
+            <li><strong>OpenAPI Swagger Docs:</strong> <a href="http://localhost:8000/docs" target="_blank" style="color: #38bdf8;">http://localhost:8000/docs</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script</div>
+        <div class="speaker-notes-text">"We will now switch to a live browser demonstration where you can test ARIMA forecasting, submit reviews for LLM sentiment analysis, and execute vector search queries."</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 12 -->
+    <div class="slide">
+      <div>
+        <span class="slide-tag">Slide 12 of 12</span>
+        <h1 class="slide-title">Faculty Q&A & Project Conclusion</h1>
+      </div>
+      <div class="slide-content">
+        <div class="card-box">
+          <h3 class="card-title">❓ Prepared Q&A Answers</h3>
+          <ul class="slide-list">
+            <li><strong>Q: Database failure handling?</strong> Answer: Auto self-healing fallback to local SQLite database (<code>shopsense_fallback.db</code>).</li>
+            <li><strong>Q: Why ARIMA over linear regression?</strong> Answer: ARIMA(1,1,1) accounts for autocorrelation and past forecast errors.</li>
+            <li><strong>Q: Deduplication of products?</strong> Answer: Concept-level normalization updates existing items instead of inserting duplicate rows.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="speaker-notes">
+        <div class="speaker-notes-title">🗣️ Speaker Script (Conclusion)</div>
+        <div class="speaker-notes-text">"In conclusion, ShopSense Milestone 2 successfully delivers real-time analytics, ML demand forecasting, LLM sentiment analysis, and vector search recommendations. Thank you, respected faculty. We welcome your questions!"</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const slideCounter = document.getElementById('slideCounter');
+    const progressFill = document.getElementById('progressFill');
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      slideCounter.textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+      progressFill.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>

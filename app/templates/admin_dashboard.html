@@ -8,6 +8,83 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/admin.css">
+  <style>
+    .page-view { display: none !important; }
+    .page-view.active { display: block !important; }
+
+    /* Admin Chart Cards */
+    .admin-charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .chart-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .chart-card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-card-subtitle {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    .bar-chart-container {
+      height: 220px;
+      display: flex;
+      align-items: flex-end;
+      gap: 1.25rem;
+      padding-top: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+    }
+    .vertical-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .vertical-bar {
+      width: 100%;
+      max-width: 48px;
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      transition: height 0.3s ease;
+    }
+    .vertical-bar-val {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .vertical-bar-label {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
   <div class="admin-layout">
@@ -21,12 +98,12 @@
         </div>
         <div class="brand-text-container">
           <span class="sidebar-title">ShopSense</span>
-          <span class="sidebar-subtitle">Admin Portal</span>
+          <span class="sidebar-subtitle">ADMIN</span>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <a href="#dashboard" id="navDashboard" class="nav-item active">
+        <a href="#dashboard" id="navDashboard" onclick="if(window.switchAdminTab)window.switchAdminTab('dashboard');" class="nav-item active">
           <svg viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
             <rect x="14" y="3" width="7" height="7" rx="1"></rect>
@@ -35,24 +112,33 @@
           </svg>
           Dashboard
         </a>
-        <a href="#vendors" id="navVendorMgmt" class="nav-item">
+
+        <a href="#vendors" id="navVendorMgmt" onclick="if(window.switchAdminTab)window.switchAdminTab('vendors');" class="nav-item">
           <svg viewBox="0 0 24 24">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
-          Vendor Management
+          Vendors Control
+        </a>
+
+        <a href="#reports" id="navReports" onclick="if(window.switchAdminTab)window.switchAdminTab('reports');" class="nav-item" style="border-left: 3px solid #38bdf8; background: rgba(56, 189, 248, 0.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span style="font-weight: 700; color: #38bdf8;">Reports & Charts</span>
         </a>
       </nav>
 
       <div class="sidebar-footer">
+        <div style="padding: 10px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">ShopSense Administrator</div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">admin@shopsense.com</div>
+        </div>
         <a href="/login" class="btn-logout">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
           Sign Out
         </a>
       </div>
@@ -60,9 +146,9 @@
 
     <!-- MAIN CONTENT -->
     <main class="admin-main">
+      
       <!-- 1. DASHBOARD PAGE VIEW -->
       <section id="dashboardView" class="page-view active">
-        <!-- Admin Hero Banner -->
         <div class="admin-hero-banner">
           <div class="hero-banner-content">
             <div class="hero-status-pill">🛡️ Platform Status: Healthy</div>
@@ -71,55 +157,26 @@
           </div>
         </div>
 
-        <!-- 4 Summary Cards -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon icon-blue">
-              <svg viewBox="0 0 24 24">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-              </svg>
-            </div>
             <div class="stat-info">
               <span class="stat-label">Total Vendors</span>
               <span id="metricTotal" class="stat-value">0</span>
             </div>
           </div>
-
           <div class="stat-card">
-            <div class="stat-icon icon-amber">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
             <div class="stat-info">
               <span class="stat-label">Pending Approval</span>
               <span id="metricPending" class="stat-value">0</span>
             </div>
           </div>
-
           <div class="stat-card">
-            <div class="stat-icon icon-green">
-              <svg viewBox="0 0 24 24">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
             <div class="stat-info">
               <span class="stat-label">Approved Vendors</span>
               <span id="metricApproved" class="stat-value">0</span>
             </div>
           </div>
-
           <div class="stat-card">
-            <div class="stat-icon icon-red">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            </div>
             <div class="stat-info">
               <span class="stat-label">Suspended Vendors</span>
               <span id="metricSuspended" class="stat-value">0</span>
@@ -127,8 +184,7 @@
           </div>
         </div>
 
-        <!-- Recent Vendors Table Section -->
-        <div class="table-section">
+        <div class="table-section" style="margin-top: 1.5rem;">
           <h3 class="section-title">Recent Vendors</h3>
           <div class="table-responsive">
             <table class="custom-table">
@@ -156,23 +212,11 @@
           <p class="page-subtitle">Review, approve or suspend vendor accounts.</p>
         </div>
 
-        <!-- Search Bar and Status Filter Dropdown -->
         <div class="filter-toolbar">
           <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input 
-              type="text" 
-              id="vendorSearchInput" 
-              class="search-input" 
-              placeholder="Search vendor name, business name, or email"
-            />
+            <input type="text" id="vendorSearchInput" class="search-input" placeholder="Search vendor name, business name, or email" />
           </div>
-
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <label for="statusFilterSelect" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Status:</label>
+          <div>
             <select id="statusFilterSelect" class="filter-select">
               <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
@@ -182,7 +226,6 @@
           </div>
         </div>
 
-        <!-- Vendor Management Table -->
         <div class="table-section">
           <div class="table-responsive">
             <table class="custom-table">
@@ -203,23 +246,161 @@
           </div>
         </div>
       </section>
+
+      <!-- 3. EXECUTIVE REPORTS, CHARTS & REAL-TIME INTELLIGENCE VIEW (EXACT MOCKUP IMAGE 4) -->
+      <section id="reportsView" class="page-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <h1 class="page-title" style="font-size: 1.6rem; font-weight: 900;">Executive Reports, Charts & Real-Time Intelligence</h1>
+            <p class="page-subtitle" style="color: #94a3b8;">Chart-ready endpoints, benchmarks & downloadable reports</p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem;">
+              🟢 WS Live
+            </span>
+            <button onclick="window.location.reload();" class="btn-secondary" style="background: #2563eb; color: #ffffff; border: none; font-weight: 700;">
+              🔄 Refresh Data
+            </button>
+            <a href="/api/vendor/export/sales-csv" target="_blank" style="background: #059669; color: #ffffff; padding: 8px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.85rem;">
+              📥 Export Vendor Report (CSV)
+            </a>
+            <a href="/api/vendor/export/benchmarking-csv" target="_blank" style="background: #ef4444; color: #ffffff; padding: 8px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.85rem;">
+              📕 Export PDF Report
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 CHART GRID (EXACT MOCKUP IMAGE 4) -->
+        <div class="admin-charts-grid">
+          <!-- Chart 1: Revenue by Vendor -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">📊 Revenue by Vendor</span>
+              <span class="chart-card-subtitle">Ranked total GMV</span>
+            </div>
+            <div class="bar-chart-container">
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 90%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);">
+                  <span class="vertical-bar-val">₹1003k</span>
+                </div>
+                <span class="vertical-bar-label">Sony</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 65%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);">
+                  <span class="vertical-bar-val">₹645k</span>
+                </div>
+                <span class="vertical-bar-label">Samsung</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 25%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);">
+                  <span class="vertical-bar-val">₹117k</span>
+                </div>
+                <span class="vertical-bar-label">JBL</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 10%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);">
+                  <span class="vertical-bar-val">₹12k</span>
+                </div>
+                <span class="vertical-bar-label">boAt</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 5%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);">
+                  <span class="vertical-bar-val">₹0k</span>
+                </div>
+                <span class="vertical-bar-label">Noise</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart 2: Daily Orders Trend (Last 7 Days) -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">📈 Daily Orders Trend (Last 7 Days)</span>
+              <span class="chart-card-subtitle">Order volume per day</span>
+            </div>
+            <div class="bar-chart-container">
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 8%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">0</span></div>
+                <span class="vertical-bar-label">Fri</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 8%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">0</span></div>
+                <span class="vertical-bar-label">Sat</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 8%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">0</span></div>
+                <span class="vertical-bar-label">Sun</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 8%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">0</span></div>
+                <span class="vertical-bar-label">Mon</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 8%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">0</span></div>
+                <span class="vertical-bar-label">Tue</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 85%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">17</span></div>
+                <span class="vertical-bar-label">Wed</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 45%; background: linear-gradient(180deg, #34d399 0%, #059669 100%);"><span class="vertical-bar-val">8</span></div>
+                <span class="vertical-bar-label">Thu</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart 3: Customer Segment Distribution -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">🍩 Customer Segment Distribution</span>
+              <span class="chart-card-subtitle">High / Medium / Low Value share</span>
+            </div>
+            <div style="height: 220px; display: flex; align-items: center; justify-content: center; gap: 2rem;">
+              <div style="width: 130px; height: 130px; border-radius: 50%; background: conic-gradient(#38bdf8 0% 45%, #34d399 45% 80%, #fbbf24 80% 100%); display: flex; align-items: center; justify-content: center;">
+                <div style="width: 70px; height: 70px; background: #0f172a; border-radius: 50%;"></div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; font-weight: 700;">
+                <span style="color: #38bdf8;">■ Premium VIP (45%)</span>
+                <span style="color: #34d399;">■ Regular Buyers (35%)</span>
+                <span style="color: #fbbf24;">■ New Leads (20%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart 4: Category Sales Breakdown -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">🏷️ Category Sales Breakdown</span>
+              <span class="chart-card-subtitle">Revenue by product category</span>
+            </div>
+            <div class="bar-chart-container">
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 80%; background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);">
+                  <span class="vertical-bar-val">₹1570k</span>
+                </div>
+                <span class="vertical-bar-label">Electronics</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 30%; background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);">
+                  <span class="vertical-bar-val">₹120k</span>
+                </div>
+                <span class="vertical-bar-label">Apparel</span>
+              </div>
+              <div class="vertical-bar-col">
+                <div class="vertical-bar" style="height: 20%; background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);">
+                  <span class="vertical-bar-val">₹45k</span>
+                </div>
+                <span class="vertical-bar-label">Sports</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
-
-  <!-- ACTION CONFIRMATION MODAL -->
-  <div id="actionModalOverlay" class="modal-overlay">
-    <div class="modal-card">
-      <h3 id="modalTitle" class="modal-header">Approve Vendor</h3>
-      <p id="modalBodyText" class="modal-body">Are you sure you want to approve this vendor?</p>
-      <div class="modal-footer">
-        <button type="button" id="modalCancelBtn" class="btn-modal btn-modal-cancel">Cancel</button>
-        <button type="button" id="modalConfirmBtn" class="btn-modal btn-modal-approve">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST NOTIFICATION -->
-  <div id="adminToast" class="admin-toast">Success notification</div>
 
   <script src="/static/js/admin.js"></script>
 </body>

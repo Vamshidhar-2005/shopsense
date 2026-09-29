@@ -1,9 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Navigation elements
-  const navDashboard = document.getElementById('navDashboard');
-  const navVendorMgmt = document.getElementById('navVendorMgmt');
-  const dashboardView = document.getElementById('dashboardView');
-  const vendorMgmtView = document.getElementById('vendorMgmtView');
+  const navItems = {
+    dashboard: document.getElementById('navDashboard'),
+    vendors: document.getElementById('navVendorMgmt'),
+    reports: document.getElementById('navReports')
+  };
+
+  const pageViews = {
+    dashboard: document.getElementById('dashboardView'),
+    vendors: document.getElementById('vendorMgmtView'),
+    reports: document.getElementById('reportsView')
+  };
 
   // Summary Metric elements
   const metricTotal = document.getElementById('metricTotal');
@@ -26,30 +32,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalConfirmBtn = document.getElementById('modalConfirmBtn');
   const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-  // Toast Toast element
+  // Toast element
   const adminToast = document.getElementById('adminToast');
 
   let activeVendorTarget = null; // { id, business_name, targetStatus }
 
   // --- 1. Navigation Controller ---
-  function switchTab(target) {
-    if (target === 'dashboard') {
-      navDashboard.classList.add('active');
-      navVendorMgmt.classList.remove('active');
-      dashboardView.classList.add('active');
-      vendorMgmtView.classList.remove('active');
+  function switchAdminTab(targetKey) {
+    Object.keys(navItems).forEach(key => {
+      if (navItems[key]) navItems[key].classList.remove('active');
+      if (pageViews[key]) pageViews[key].classList.remove('active');
+    });
+
+    if (navItems[targetKey]) navItems[targetKey].classList.add('active');
+    if (pageViews[targetKey]) pageViews[targetKey].classList.add('active');
+
+    if (targetKey === 'dashboard') {
       loadDashboardData();
-    } else if (target === 'vendors') {
-      navVendorMgmt.classList.add('active');
-      navDashboard.classList.remove('active');
-      vendorMgmtView.classList.add('active');
-      dashboardView.classList.remove('active');
+    } else if (targetKey === 'vendors') {
       loadVendorManagementData();
     }
   }
 
-  if (navDashboard) navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchTab('dashboard'); });
-  if (navVendorMgmt) navVendorMgmt.addEventListener('click', (e) => { e.preventDefault(); switchTab('vendors'); });
+  window.switchAdminTab = switchAdminTab;
+
+  Object.keys(navItems).forEach(key => {
+    if (navItems[key]) {
+      navItems[key].addEventListener('click', (e) => {
+        e.preventDefault();
+        switchAdminTab(key);
+      });
+    }
+  });
 
   // --- 2. Toast Controller ---
   function showToast(msg) {
@@ -82,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- 5. Dashboard Data Loader ---
   async function loadDashboardData() {
     try {
-      // Load Summary Cards
       const metricsRes = await fetch('/api/admin/metrics');
       const metricsJson = await metricsRes.json();
       if (metricsRes.ok && metricsJson.success) {
@@ -93,25 +106,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (metricSuspended) metricSuspended.textContent = m.suspended;
       }
 
-      // Load Recent Vendors (up to 5)
       const vendorsRes = await fetch('/api/admin/vendors');
       const vendorsJson = await vendorsRes.json();
       if (vendorsRes.ok && vendorsJson.success && recentVendorsTableBody) {
         const list = vendorsJson.vendors.slice(0, 5);
         if (list.length === 0) {
-          recentVendorsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding: 2rem;">No registered vendors found yet.</td></tr>`;
-          return;
+          recentVendorsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No vendor accounts registered yet.</td></tr>`;
+        } else {
+          recentVendorsTableBody.innerHTML = list.map(v => `
+            <tr>
+              <td><span style="font-weight: 700; color: #ffffff;">${escapeHtml(v.full_name)}</span></td>
+              <td>${escapeHtml(v.business_name)}</td>
+              <td>${escapeHtml(v.email)}</td>
+              <td>${renderStatusBadge(v.status)}</td>
+              <td>${formatDate(v.created_at)}</td>
+            </tr>
+          `).join('');
         }
-
-        recentVendorsTableBody.innerHTML = list.map(v => `
-          <tr>
-            <td style="font-weight: 600;">${escapeHtml(v.full_name)}</td>
-            <td>${escapeHtml(v.business_name)}</td>
-            <td style="color: var(--text-muted);">${escapeHtml(v.email)}</td>
-            <td>${renderStatusBadge(v.status)}</td>
-            <td>${formatDate(v.created_at)}</td>
-          </tr>
-        `).join('');
       }
     } catch (err) {
       console.error('Error loading admin dashboard data:', err);
@@ -120,66 +131,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 6. Vendor Management Data Loader ---
   async function loadVendorManagementData() {
-    if (!vendorMgmtTableBody) return;
-
-    const searchTerm = vendorSearchInput ? vendorSearchInput.value.trim() : '';
-    const statusVal = statusFilterSelect ? statusFilterSelect.value : 'All';
-
     try {
-      const url = `/api/admin/vendors?search=${encodeURIComponent(searchTerm)}&status=${encodeURIComponent(statusVal)}`;
-      const res = await fetch(url);
+      const searchVal = vendorSearchInput ? vendorSearchInput.value.trim() : '';
+      const statusVal = statusFilterSelect ? statusFilterSelect.value : 'All';
+
+      let queryParams = [];
+      if (searchVal) queryParams.push(`search=${encodeURIComponent(searchVal)}`);
+      if (statusVal && statusVal !== 'All') queryParams.push(`status=${encodeURIComponent(statusVal)}`);
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+      const res = await fetch(`/api/admin/vendors${queryString}`);
       const json = await res.json();
 
-      if (res.ok && json.success) {
-        const vendors = json.vendors;
+      if (res.ok && json.success && vendorMgmtTableBody) {
+        const vendors = json.vendors || [];
         if (vendors.length === 0) {
-          vendorMgmtTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 2rem;">No matching vendors found.</td></tr>`;
-          return;
+          vendorMgmtTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">No matching vendors found.</td></tr>`;
+        } else {
+          vendorMgmtTableBody.innerHTML = vendors.map(v => {
+            const isApproved = v.status === 'Approved';
+            const isSuspended = v.status === 'Suspended';
+
+            let approveBtn = `<button class="btn-action btn-approve" onclick="openActionModal(${v.id}, '${escapeQuote(v.business_name)}', 'Approved')">Approve</button>`;
+            let suspendBtn = `<button class="btn-action btn-suspend" onclick="openActionModal(${v.id}, '${escapeQuote(v.business_name)}', 'Suspended')">Suspend</button>`;
+
+            if (isApproved) {
+              approveBtn = `<button class="btn-action btn-approve" disabled style="opacity:0.4; cursor:not-allowed;">Approved</button>`;
+            } else if (isSuspended) {
+              suspendBtn = `<button class="btn-action btn-suspend" disabled style="opacity:0.4; cursor:not-allowed;">Suspended</button>`;
+            }
+
+            return `
+              <tr>
+                <td><span style="font-weight: 700; color: #ffffff;">${escapeHtml(v.full_name)}</span></td>
+                <td>${escapeHtml(v.business_name)}</td>
+                <td>${escapeHtml(v.email)}</td>
+                <td>${renderStatusBadge(v.status)}</td>
+                <td>${formatDate(v.created_at)}</td>
+                <td>
+                  <div class="action-buttons">
+                    ${approveBtn}
+                    ${suspendBtn}
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
         }
-
-        vendorMgmtTableBody.innerHTML = vendors.map(v => {
-          const st = (v.status || 'Pending').toLowerCase();
-          let actionsHtml = '';
-
-          if (st === 'pending') {
-            actionsHtml = `
-              <div class="action-group">
-                <button class="btn-action btn-approve" onclick="openConfirmModal(${v.id}, '${escapeQuote(v.business_name)}', 'Approved')">Approve</button>
-                <button class="btn-action btn-suspend" onclick="openConfirmModal(${v.id}, '${escapeQuote(v.business_name)}', 'Suspended')">Suspend</button>
-              </div>
-            `;
-          } else if (st === 'approved') {
-            actionsHtml = `
-              <div class="action-group">
-                <button class="btn-action btn-suspend" onclick="openConfirmModal(${v.id}, '${escapeQuote(v.business_name)}', 'Suspended')">Suspend</button>
-              </div>
-            `;
-          } else if (st === 'suspended') {
-            actionsHtml = `
-              <div class="action-group">
-                <button class="btn-action btn-approve" onclick="openConfirmModal(${v.id}, '${escapeQuote(v.business_name)}', 'Approved')">Approve</button>
-              </div>
-            `;
-          }
-
-          return `
-            <tr>
-              <td style="font-weight: 600;">${escapeHtml(v.full_name)}</td>
-              <td>${escapeHtml(v.business_name)}</td>
-              <td style="color: var(--text-muted);">${escapeHtml(v.email)}</td>
-              <td>${renderStatusBadge(v.status)}</td>
-              <td>${formatDate(v.created_at)}</td>
-              <td>${actionsHtml}</td>
-            </tr>
-          `;
-        }).join('');
       }
     } catch (err) {
       console.error('Error loading vendor management list:', err);
     }
   }
 
-  // --- 7. Search & Filter Listeners ---
   let searchTimeout = null;
   if (vendorSearchInput) {
     vendorSearchInput.addEventListener('input', () => {
@@ -192,28 +196,28 @@ document.addEventListener('DOMContentLoaded', () => {
     statusFilterSelect.addEventListener('change', loadVendorManagementData);
   }
 
-  // --- 8. Confirmation Modal Controller ---
-  window.openConfirmModal = function(id, businessName, targetStatus) {
+  window.openActionModal = function(id, businessName, targetStatus) {
     activeVendorTarget = { id, businessName, targetStatus };
+    const isApprove = targetStatus === 'Approved';
 
-    if (targetStatus === 'Approved') {
-      modalTitle.textContent = 'Approve Vendor';
-      modalBodyText.innerHTML = `Are you sure you want to approve '<strong>${escapeHtml(businessName)}</strong>'?`;
-      modalConfirmBtn.textContent = 'Approve Vendor';
-      modalConfirmBtn.className = 'btn-modal btn-modal-approve';
-    } else {
-      modalTitle.textContent = 'Suspend Vendor';
-      modalBodyText.innerHTML = `Are you sure you want to suspend '<strong>${escapeHtml(businessName)}</strong>'?`;
-      modalConfirmBtn.textContent = 'Suspend Vendor';
-      modalConfirmBtn.className = 'btn-modal btn-modal-suspend';
+    if (modalTitle) modalTitle.textContent = isApprove ? 'Approve Vendor Account' : 'Suspend Vendor Account';
+    if (modalBodyText) {
+      modalBodyText.textContent = isApprove
+        ? `Are you sure you want to approve '${businessName}'? This will allow them to login and publish products.`
+        : `Are you sure you want to suspend '${businessName}'? This will prevent them from accessing their vendor portal.`;
     }
 
-    actionModalOverlay.classList.add('visible');
+    if (modalConfirmBtn) {
+      modalConfirmBtn.textContent = isApprove ? 'Approve Vendor' : 'Suspend Vendor';
+      modalConfirmBtn.className = isApprove ? 'btn-modal btn-modal-approve' : 'btn-modal btn-modal-suspend';
+    }
+
+    if (actionModalOverlay) actionModalOverlay.style.display = 'flex';
   };
 
   function closeModal() {
-    actionModalOverlay.classList.remove('visible');
     activeVendorTarget = null;
+    if (actionModalOverlay) actionModalOverlay.style.display = 'none';
   }
 
   if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeModal);
@@ -222,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalConfirmBtn.addEventListener('click', async () => {
       if (!activeVendorTarget) return;
 
-      const { id, targetStatus } = activeVendorTarget;
+      const { id, businessName, targetStatus } = activeVendorTarget;
       modalConfirmBtn.disabled = true;
 
       try {
@@ -237,9 +241,8 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
 
         if (res.ok && json.success) {
-          showToast(json.message);
+          showToast(json.message || `Vendor status updated to ${targetStatus}.`);
           loadVendorManagementData();
-          loadDashboardData();
         } else {
           alert(json.detail || 'Failed to update vendor status.');
         }
@@ -251,14 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Utility Escapes
   function escapeHtml(str) {
     if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function escapeQuote(str) {
@@ -266,6 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return String(str).replace(/'/g, "\\'");
   }
 
-  // Initial Load: Default to Dashboard view
-  switchTab('dashboard');
+  const initialHash = window.location.hash.replace('#', '');
+  if (initialHash === 'vendors') switchAdminTab('vendors');
+  else if (initialHash === 'reports') switchAdminTab('reports');
+  else switchAdminTab('dashboard');
 });

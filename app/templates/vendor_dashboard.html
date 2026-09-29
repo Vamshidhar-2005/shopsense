@@ -3,74 +3,329 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopSense - Vendor Portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <title>ShopSense - Vendor Operations & Analytics Portal</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
   <link rel="stylesheet" href="/static/css/vendor.css">
+  
+  <style>
+    /* GLOBAL WHITE BACKGROUND OVERRIDES */
+    html, body, .dashboard-layout, .main-content, .sidebar {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    .sidebar {
+      background-color: #f8fafc !important;
+      border-right: 1px solid #e2e8f0 !important;
+    }
+    .brand-title, .welcome-heading, .page-title, .section-title, .stat-value, h1, h2, h3, h4 {
+      color: #0f172a !important;
+    }
+    .welcome-subtext, .page-subtitle, .section-subtitle, .stat-label {
+      color: #475569 !important;
+    }
+    .nav-item {
+      color: #334155 !important;
+    }
+    .nav-item:hover, .nav-item.active {
+      background-color: #e2e8f0 !important;
+      color: #0284c7 !important;
+    }
+    .top-header {
+      background-color: #ffffff !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+    }
+    .stat-card, .table-section, .report-export-card, .toolbar-box, .form-card, .trends-card {
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+    }
+    table.custom-table th {
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
+      border-bottom: 2px solid #cbd5e1 !important;
+    }
+    table.custom-table td {
+      border-bottom: 1px solid #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    input, select, textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid #94a3b8 !important;
+    }
+    div[style*="background: #0f172a"],
+    div[style*="background:#0f172a"],
+    div[style*="background: #090d16"],
+    div[style*="background:#090d16"],
+    div[style*="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)"] {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+
+    .page-view { display: none !important; }
+    .page-view.active { display: block !important; }
+
+    /* RAG Floating Chat Drawer Styling */
+    .rag-floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      color: #ffffff;
+      padding: 12px 22px;
+      border-radius: 99px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: none;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .rag-floating-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.6);
+    }
+
+    .rag-chat-drawer {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 380px;
+      max-width: 90vw;
+      height: 480px;
+      background: #0f172a;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    .rag-chat-drawer.open {
+      display: flex;
+    }
+    .rag-drawer-header {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+    .rag-drawer-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #090d16;
+    }
+    .rag-msg {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .rag-msg.ai {
+      background: #1e293b;
+      color: #e2e8f0;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .rag-msg.user {
+      background: #2563eb;
+      color: #ffffff;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+      font-weight: 600;
+    }
+    .rag-drawer-footer {
+      padding: 12px;
+      background: #0f172a;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 8px;
+    }
+    .rag-drawer-footer input {
+      flex: 1;
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: #ffffff;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .rag-drawer-footer button {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Suggestion Pills */
+    .analyst-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .analyst-pill:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    /* Report Card Grid */
+    .report-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .report-export-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .report-export-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+  </style>
 </head>
-<body>
-  <div class="vendor-layout">
-    <!-- LEFT SIDEBAR -->
-    <aside class="vendor-sidebar">
+<body class="vendor-body">
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="sidebar-logo">
+        <div class="brand-icon">
           <svg viewBox="0 0 24 24">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <path d="M16 10a4 4 0 0 1-8 0"></path>
           </svg>
         </div>
-        <div class="brand-text-container">
-          <span class="sidebar-title">ShopSense</span>
-          <span class="sidebar-subtitle">Vendor Portal</span>
+        <div>
+          <h2 class="brand-title">ShopSense</h2>
+          <span class="brand-subtitle">VENDOR PORTAL</span>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <a href="#dashboard" id="navDashboard" class="nav-item active">
-          <svg viewBox="0 0 24 24">
-            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-          </svg>
-          Dashboard
+        <!-- MILESTONE 1: VENDOR CORE PORTAL -->
+        <div style="padding: 10px 16px 4px; font-size: 0.68rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+          <span>MILESTONE 1: CORE PORTAL</span>
+          <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">M1</span>
+        </div>
+
+        <a href="#dashboard" id="navDashboard" onclick="if(window.switchTab)window.switchTab('dashboard');" class="nav-item active">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard Overview
         </a>
 
-        <a href="#catalog" id="navCatalog" class="nav-item">
-          <svg viewBox="0 0 24 24">
-            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
-          My Catalog
+        <a href="#catalog" id="navCatalog" onclick="if(window.switchTab)window.switchTab('catalog');" class="nav-item">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          My Store Catalog
         </a>
 
-        <a href="#add-product" id="navAddProduct" class="nav-item">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="16"></line>
-            <line x1="8" y1="12" x2="16" y2="12"></line>
-          </svg>
-          Add Product
+        <a href="#add-product" id="navAddProduct" onclick="if(window.switchTab)window.switchTab('addProduct');" class="nav-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          Add / Edit Product
         </a>
 
-        <a href="#insights" id="navInsights" class="nav-item">
-          <svg viewBox="0 0 24 24">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-          Sales Analytics
+        <a href="#profile" id="navProfile" onclick="if(window.switchTab)window.switchTab('profile');" class="nav-item">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Vendor Profile
         </a>
 
-        <a href="#profile" id="navProfile" class="nav-item">
-          <svg viewBox="0 0 24 24">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          Profile
+        <!-- MILESTONE 2: INVENTORY INTELLIGENCE & CUSTOMER ANALYTICS -->
+        <div style="padding: 14px 16px 4px; font-size: 0.68rem; font-weight: 800; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px;">
+          <span>MILESTONE 2: ANALYTICS & ML</span>
+          <span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">M2</span>
+        </div>
+
+        <a href="#m2-inventory" id="navM2Inventory" onclick="if(window.switchTab)window.switchTab('m2Inventory');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          <span style="color: #fbbf24; font-weight: 600;">Inventory Intelligence</span>
+        </a>
+
+        <a href="#m2-customers" id="navM2Customers" onclick="if(window.switchTab)window.switchTab('m2Customers');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span style="color: #34d399; font-weight: 600;">Customer Spend Tiers</span>
+        </a>
+
+        <a href="#m2-analytics" id="navM2Analytics" onclick="if(window.switchTab)window.switchTab('m2Analytics');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span style="color: #38bdf8; font-weight: 600;">ML Forecast & Sentiment</span>
+        </a>
+
+        <!-- MILESTONE 3: BI HUB, RAG AI & COMPARISON -->
+        <div style="padding: 14px 16px 4px; font-size: 0.68rem; font-weight: 800; color: #a855f7; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px;">
+          <span>MILESTONE 3: ADVANCED BI & AI</span>
+          <span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">M3</span>
+        </div>
+
+        <a href="#reports" id="navReports" onclick="if(window.switchTab)window.switchTab('reports');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span style="font-weight: 700; color: #38bdf8;">Reports & CSV Files</span>
+        </a>
+
+        <a href="#m3-bi-hub" id="navM3BiHub" onclick="if(window.switchTab)window.switchTab('m3BiHub');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          Milestone 3 BI Hub
+        </a>
+
+        <a href="#ai-data-analyst" id="navAiDataAnalyst" onclick="if(window.switchTab)window.switchTab('aiDataAnalyst');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
+          <span style="font-weight: 700; color: #ffffff;">RAG AI Shopping Assistant</span>
+        </a>
+
+        <a href="#comparison" id="navComparison" onclick="if(window.switchTab)window.switchTab('comparison');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span style="font-weight: 700; color: #a855f7;">Comparison & Listing</span>
+        </a>
+
+        <!-- MILESTONE 4: OPTIMIZATION, CI/CD & AUTONOMOUS AGENT -->
+        <div style="padding: 14px 16px 4px; font-size: 0.68rem; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 8px;">
+          <span>MILESTONE 4: DEPLOYMENT & AGENT</span>
+          <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; font-weight: 800;">M4</span>
+        </div>
+
+        <a href="#m4-agent" id="navM4Agent" onclick="if(window.switchTab)window.switchTab('m4Agent');" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span style="font-weight: 700; color: #f87171;">Autonomous AI Agent</span>
         </a>
       </nav>
 
@@ -86,608 +341,1075 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="vendor-main">
-      <!-- 1. DASHBOARD PAGE VIEW -->
-      <section id="dashboardView" class="page-view active">
-        <!-- Hero Welcome Banner Card -->
-        <div class="dashboard-hero-banner">
-          <div class="hero-banner-content">
-            <div class="hero-status-pill">🟢 Live Store Active</div>
-            <h1 class="hero-banner-title">Welcome back, <span id="vendorWelcomeName">Vendor Owner</span>! 👋</h1>
-            <p class="hero-banner-text">Here is what is happening with your store today. Manage your catalog, track incoming customer sales, and analyze live store revenue.</p>
-            <div class="hero-banner-actions">
-              <button type="button" id="btnOpenSimulateOrderModal" class="btn-simulate-sale" onclick="openSimulateOrderModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                Simulate Customer Sale
-              </button>
-              <button type="button" class="btn-add-quick" onclick="switchTab('addProduct')">
-                + Add New Product
-              </button>
-            </div>
-          </div>
-          <div class="hero-banner-graphic">
-            <img src="/static/images/dashboard_banner.jpg" alt="Dashboard Banner Graphic" class="hero-graphic-img-dash" onerror="this.style.display='none';" />
-          </div>
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER BAR -->
+      <header class="top-header">
+        <div class="header-welcome">
+          <h2 class="welcome-heading">Welcome, <span id="vendorWelcomeName">Vamshi</span> 👋</h2>
+          <p class="welcome-subtext">VENDOR DASHBOARD — ID: #<span id="vendorIdDisplay">1</span></p>
         </div>
 
-        <!-- 4 Summary Cards -->
+        <div class="header-actions">
+          <button type="button" class="btn-secondary" onclick="window.openSimulateOrderModal();" style="background: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; color: #fbbf24;">
+            ⚡ Simulate Sale
+          </button>
+          
+          <button type="button" class="btn-secondary" onclick="window.location.reload();">
+            🔄 Refresh Catalog
+          </button>
+
+          <div class="user-avatar-pill">
+            <span class="avatar-initials">R</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-left: 6px;">Reddy <small style="color: #94a3b8; display: block; font-weight: 400;">Vendor Admin</small></span>
+          </div>
+
+          <a href="/login" class="btn-secondary" style="padding: 6px 14px; text-decoration: none;">Sign out</a>
+        </div>
+      </header>
+
+      <!-- MILESTONE MASTER SELECTION TOOLBAR -->
+      <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.75rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">🚀</span>
+              <h2 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0;">ShopSense Unified All-in-One Milestone Dashboard</h2>
+            </div>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 4px;">Milestones 1, 2, 3, & 4 seamlessly integrated into a single operational portal.</p>
+          </div>
+          <span style="background: linear-gradient(90deg, #38bdf8 0%, #34d399 33%, #a855f7 66%, #f87171 100%); color: #0f172a; font-weight: 800; padding: 6px 14px; border-radius: 99px; font-size: 0.8rem;">
+            ✨ ALL 4 MILESTONES ACTIVE
+          </span>
+        </div>
+
+        <!-- MILESTONE QUICK TAB BUTTONS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+          <!-- MILESTONE 1 TAB BUTTON -->
+          <button type="button" onclick="window.switchTab('dashboard');" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 12px 16px; text-align: left; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">MILESTONE 1</span>
+              <span style="background: #38bdf8; color: #0f172a; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">WEEKS 1-2</span>
+            </div>
+            <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Marketplace Foundation &amp; Catalog</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">CRUD Catalog, Profile &amp; GenAI Specs</div>
+          </button>
+
+          <!-- MILESTONE 2 TAB BUTTON -->
+          <button type="button" onclick="window.switchTab('m2Inventory');" style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 12px; padding: 12px 16px; text-align: left; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #fbbf24; text-transform: uppercase;">MILESTONE 2</span>
+              <span style="background: #fbbf24; color: #0f172a; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">WEEKS 3-4</span>
+            </div>
+            <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Inventory Intelligence &amp; Analytics</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">Stock Alerts, Customer Tiers, ML Demand &amp; Sentiment</div>
+          </button>
+
+          <!-- MILESTONE 3 TAB BUTTON -->
+          <button type="button" onclick="window.switchTab('aiDataAnalyst');" style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 12px; padding: 12px 16px; text-align: left; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #c084fc; text-transform: uppercase;">MILESTONE 3</span>
+              <span style="background: #a855f7; color: #ffffff; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">WEEKS 5-6</span>
+            </div>
+            <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Advanced BI, RAG AI &amp; Comparison</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">RAG Assistant, Text-to-SQL, CSV Reports &amp; Matrix</div>
+          </button>
+
+          <!-- MILESTONE 4 TAB BUTTON -->
+          <button type="button" onclick="window.switchTab('m4Agent');" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 16px; text-align: left; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #f87171; text-transform: uppercase;">MILESTONE 4</span>
+              <span style="background: #ef4444; color: #ffffff; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">WEEKS 7-8</span>
+            </div>
+            <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">Optimization, CI/CD &amp; AI Agent</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">Docker, Pytest, GitHub Actions &amp; AI Strategic Agent</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. DASHBOARD OVERVIEW PAGE VIEW -->
+      <section id="dashboardView" class="page-view active">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon icon-cyan">
-              <svg viewBox="0 0 24 24">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-              </svg>
-            </div>
+            <div class="stat-icon icon-blue"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
             <div class="stat-info">
-              <span class="stat-label">Total Sales</span>
-              <span id="metricSales" class="stat-value">0</span>
+              <span class="stat-label">TOTAL ORDERS</span>
+              <span id="metricSales" class="stat-value">47</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon icon-emerald">
-              <svg viewBox="0 0 24 24">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </div>
+            <div class="stat-icon icon-green"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
             <div class="stat-info">
-              <span class="stat-label">Total Revenue</span>
-              <span id="metricRevenue" class="stat-value">$0.00</span>
+              <span class="stat-label">TOTAL REVENUE</span>
+              <span id="metricRevenue" class="stat-value">₹42,842.63</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon icon-indigo">
-              <svg viewBox="0 0 24 24">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-              </svg>
-            </div>
+            <div class="stat-icon icon-purple"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
             <div class="stat-info">
-              <span class="stat-label">Total Transactions</span>
-              <span id="metricTransactions" class="stat-value">0</span>
+              <span class="stat-label">AVG ORDER VALUE (AOV)</span>
+              <span id="metricAov" class="stat-value">₹911.55</span>
             </div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon icon-purple">
-              <svg viewBox="0 0 24 24">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              </svg>
-            </div>
+            <div class="stat-icon icon-orange"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
             <div class="stat-info">
-              <span class="stat-label">Products Listed</span>
-              <span id="metricProducts" class="stat-value">0</span>
+              <span class="stat-label">UNITS SOLD</span>
+              <span id="metricProducts" class="stat-value">4 units</span>
             </div>
           </div>
         </div>
 
-        <!-- Recent Products Section -->
-        <div class="page-header" style="margin-bottom: 1rem;">
-          <h2 style="font-size: 1.35rem; font-weight: 800;">Recent Products</h2>
+        <!-- INTERACTIVE WEEKLY AI EMAIL ADVICE CARD ON MAIN OVERVIEW -->
+        <div style="background: #0f172a; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">📧</span>
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #f87171; margin: 0;">Weekly AI Email Advice Workflow</h3>
+            </div>
+            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 99px;">
+              🤖 AUTOMATED EMAIL AGENT
+            </span>
+          </div>
+          <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 0.75rem;">
+            Autonomous AI agent analyzes store velocity and emails proactive strategic advice. Type a custom store question below and click Send Email.
+          </p>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <input type="text" id="dashEmailCustomNoteInput" placeholder="Type custom store advice question e.g. 'Should I discount Nike Dri-FIT T-Shirt?'" style="flex: 1; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 12px; font-size: 0.82rem;" onkeydown="if(event.key==='Enter')window.sendAgentEmailAdvice('dash');" />
+            <button type="button" onclick="window.sendAgentEmailAdvice('dash')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              ✈️ Send Email
+            </button>
+          </div>
+
+          <div id="dashAgentEmailPreviewBox" style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.82rem; color: #e2e8f0;">
+            Type a custom question above or click 'Send Email' to generate proactive strategic email report to vendor (vendor@gmail.com).
+          </div>
         </div>
 
-        <!-- Dashboard Table Container -->
-        <div id="productsTableSection" class="table-section">
-          <div class="table-responsive">
+        <div class="table-section" style="margin-top: 1.5rem;">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Recent Catalog Products</h3>
+              <p class="section-subtitle">Manage and monitor inventory for your latest product listings.</p>
+            </div>
+            <button type="button" class="btn-link" onclick="window.switchTab('catalog');">View All Products →</button>
+          </div>
+
+          <div id="productsTableSection" class="table-responsive">
             <table class="custom-table">
               <thead>
                 <tr>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
+                  <th>PRODUCT DETAILS</th>
+                  <th>CATEGORY</th>
+                  <th>PRICE</th>
+                  <th>STOCK STATUS</th>
                 </tr>
               </thead>
-              <tbody id="recentProductsTableBody">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="recentProductsTableBody"></tbody>
             </table>
           </div>
         </div>
-
-        <!-- Empty State Container -->
-        <div id="emptyStateContainer" class="empty-state-card" style="display: none;">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
-          </div>
-          <h3 class="empty-state-title">No products available.</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">You haven't listed any products in your catalog yet.</p>
-          <a href="#add-product" id="emptyStateAddProductBtn" class="btn-add-product">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            Add Product
-          </a>
-        </div>
       </section>
 
-      <!-- 2. MY CATALOG PAGE VIEW -->
+      <!-- 2. CATALOG MANAGEMENT PAGE VIEW -->
       <section id="catalogView" class="page-view">
-        <div class="page-header" style="margin-bottom: 2rem;">
-          <h1 class="page-title">My  Profuct Catalog</h1>
-          <p class="page-subtitle">Manage, edit, and organize all your store items.</p>
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">My Store Catalog</h1>
+            <p class="page-subtitle">View, search, edit, or delete items from your active store inventory.</p>
+          </div>
+          <button type="button" class="btn-primary" onclick="window.switchTab('addProduct');">+ Add Product</button>
         </div>
 
-        <!-- Search Bar -->
-        <div class="search-toolbar">
-          <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input 
-              type="text" 
-              id="catalogSearchInput" 
-              class="search-input" 
-              placeholder="Search products by name or category..."
-            />
+        <div class="toolbar-box">
+          <div class="search-input-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="catalogSearchInput" placeholder="Search catalog by product name or category...">
           </div>
         </div>
 
-        <!-- Catalog 6-Column Product Table -->
-        <div id="catalogTableSection" class="table-section">
-          <div class="table-responsive">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="catalogTableBody">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Catalog Empty State Container -->
-        <div id="catalogEmptyStateContainer" class="empty-state-card" style="display: none;">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
-          </div>
-          <h3 class="empty-state-title">No products found.</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Start adding products to populate your catalog.</p>
-          <a href="#add-product" id="catalogEmptyAddProductBtn" class="btn-add-product">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            Add Product
-          </a>
+        <div id="catalogTableSection" class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>PRODUCT</th>
+                <th>CATEGORY</th>
+                <th>PRICE</th>
+                <th>STOCK LEVEL</th>
+                <th style="text-align: right;">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="catalogTableBody"></tbody>
+          </table>
         </div>
       </section>
 
-      <!-- 3. ADD PRODUCT PAGE VIEW -->
+      <!-- 3. ADD / EDIT PRODUCT FORM PAGE VIEW -->
       <section id="addProductView" class="page-view">
         <div class="page-header">
-          <h1 class="page-title">Add Product</h1>
-          <p class="page-subtitle">List a new item in your store inventory.</p>
+          <h1 class="page-title" id="formPageTitle">Add New Product</h1>
+          <p class="page-subtitle">Fill in product specifications to publish to the ShopSense marketplace catalog.</p>
         </div>
 
         <div class="form-card">
           <form id="addProductForm" class="form-grid" novalidate>
-            <!-- Two-Column Layout Grid -->
-            <div class="form-row-2col">
-              <!-- Left Column -->
-              <div class="form-col">
-                <div class="form-group">
-                  <label for="prodNameInput" class="form-label">Product Name <span class="required-star">*</span></label>
-                  <input 
-                    type="text" 
-                    id="prodNameInput" 
-                    class="form-input" 
-                    placeholder="e.g. Wireless Noise-Canceling Headphones" 
-                    required 
-                  />
-                </div>
+            <input type="hidden" id="editProductId" value="">
 
-                <div class="form-group">
-                  <label for="prodPriceInput" class="form-label">Price ($) <span class="required-star">*</span></label>
-                  <input 
-                    type="number" 
-                    id="prodPriceInput" 
-                    class="form-input" 
-                    placeholder="299.99" 
-                    step="0.01" 
-                    min="0.01" 
-                    required 
-                  />
-                </div>
+            <div class="form-group full-width">
+              <label for="prodNameInput" class="form-label">Product Name <span class="required-star">*</span></label>
+              <input type="text" id="prodNameInput" class="form-control" placeholder="e.g. SONY BRAVIA 4K Ultra HD TV" required>
+            </div>
+
+            <div class="form-row-2col full-width">
+              <div class="form-group">
+                <label for="prodPriceInput" class="form-label">Price (₹) <span class="required-star">*</span></label>
+                <input type="number" step="0.01" min="0.01" id="prodPriceInput" class="form-control" placeholder="123900.00" required>
               </div>
 
-              <!-- Right Column -->
-              <div class="form-col">
-                <div class="form-group">
-                  <label for="prodCategorySelect" class="form-label">Category <span class="required-star">*</span></label>
-                  <select id="prodCategorySelect" class="form-select" required>
-                    <option value="Electronics" selected>Electronics</option>
-                    <option value="Clothing &amp; Apparel">Clothing &amp; Apparel</option>
-                    <option value="Home &amp; Kitchen">Home &amp; Kitchen</option>
-                    <option value="Beauty &amp; Personal Care">Beauty &amp; Personal Care</option>
-                    <option value="Sports &amp; Outdoors">Sports &amp; Outdoors</option>
-                    <option value="Books &amp; Media">Books &amp; Media</option>
-                    <option value="Toys &amp; Games">Toys &amp; Games</option>
-                    <option value="Food &amp; Beverages">Food &amp; Beverages</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="prodStockInput" class="form-label">Stock Quantity <span class="required-star">*</span></label>
-                  <input 
-                    type="number" 
-                    id="prodStockInput" 
-                    class="form-input" 
-                    placeholder="50" 
-                    min="0" 
-                    required 
-                  />
-                </div>
+              <div class="form-group">
+                <label for="prodCategorySelect" class="form-label">Category <span class="required-star">*</span></label>
+                <select id="prodCategorySelect" class="form-control" required>
+                  <option value="">Select category...</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Clothing & Apparel">Clothing & Apparel</option>
+                  <option value="Home & Kitchen">Home & Kitchen</option>
+                  <option value="Beauty & Personal Care">Beauty & Personal Care</option>
+                  <option value="Sports & Outdoors">Sports & Outdoors</option>
+                  <option value="Food & Beverage">Food & Beverage</option>
+                  <option value="Books & Media">Books & Media</option>
+                </select>
               </div>
             </div>
 
-            <!-- Full-Width Field: Product Image URL -->
-            <div class="form-group">
-              <label for="prodImageUrlInput" class="form-label">Product Image URL</label>
-              <input 
-                type="url" 
-                id="prodImageUrlInput" 
-                class="form-input" 
-                placeholder="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" 
-              />
-            </div>
-
-            <!-- Full-Width Field: Description (AI will enhance this) -->
-            <div class="form-group">
-              <label for="prodDescInput" class="form-label">Description (AI will enhance this)</label>
-              <textarea 
-                id="prodDescInput" 
-                class="form-input" 
-                placeholder="Enter raw features, specs, or product details... Click 'Generate AI Description' below for automated enhancement." 
-                rows="4"
-              ></textarea>
-            </div>
-
-            <!-- Action Buttons Toolbar -->
-            <div class="form-actions-toolbar">
-              <div class="action-buttons-left">
-                <button type="button" id="btnGenerateAiDesc" class="btn-ai">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
-                  Generate AI Description
-                </button>
+            <div class="form-row-2col full-width">
+              <div class="form-group">
+                <label for="prodStockInput" class="form-label">Initial Stock Quantity <span class="required-star">*</span></label>
+                <input type="number" min="0" id="prodStockInput" class="form-control" placeholder="50" required>
               </div>
 
-              <div class="action-buttons-right">
-                <button type="button" id="btnCancelAddProduct" class="btn-cancel">Cancel</button>
-                <button type="submit" class="btn-save">Save Product</button>
+              <div class="form-group">
+                <label for="prodImageUrlInput" class="form-label">Product Image URL (Optional)</label>
+                <input type="url" id="prodImageUrlInput" class="form-control" placeholder="https://images.unsplash.com/...">
               </div>
+            </div>
+
+            <div class="form-group full-width">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <label for="prodDescInput" class="form-label" style="margin-bottom: 0;">Product Description</label>
+                <button type="button" id="btnGenerateAiDesc" class="btn-ai-sparkle">Generate AI Description</button>
+              </div>
+              <textarea id="prodDescInput" class="form-control" rows="4" placeholder="Enter product specs or click Generate AI Description..."></textarea>
+            </div>
+
+            <div class="form-actions full-width">
+              <button type="button" id="btnCancelAddProduct" class="btn-secondary">Cancel</button>
+              <button type="submit" id="btnSaveProduct" class="btn-primary">Save Product</button>
             </div>
           </form>
         </div>
       </section>
 
-      <!-- 4. STORE INSIGHTS PAGE VIEW -->
-      <section id="insightsView" class="page-view">
-        <div class="page-header">
-          <h1 class="page-title">Sales Analytics</h1>
-          <p class="page-subtitle">Track your order statistics, sales trends, and top performing store items.</p>
+      <!-- 4. DEDICATED REPORTS & CSV FILES PAGE VIEW (RICH & POPULATED) -->
+      <section id="reportsView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.5rem; color: #38bdf8;">📂</span>
+            <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Reports & Formatted CSV Files</h1>
+          </div>
+          <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Download formal business CSV files, preview dataset contents, and export executive analytics reports.</p>
         </div>
 
-        <!-- SECTION 1: CUSTOMER ORDER STATISTICS -->
-        <div class="page-header" style="margin-bottom: 1rem;">
-          <h2 style="font-size: 1.25rem; font-weight: 700;">Customer Order Statistics</h2>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon icon-cyan">
-              <svg viewBox="0 0 24 24">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-label">Total Orders</span>
-              <span id="statTotalOrders" class="stat-value">0</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon icon-emerald">
-              <svg viewBox="0 0 24 24">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-label">Completed Orders</span>
-              <span id="statCompletedOrders" class="stat-value">0</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon icon-amber">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-label">Pending Orders</span>
-              <span id="statPendingOrders" class="stat-value">0</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon icon-red">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-label">Cancelled Orders</span>
-              <span id="statCancelledOrders" class="stat-value">0</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- SECTION 2: SALES TRENDS (DAILY, WEEKLY, MONTHLY) -->
-        <div class="trends-card">
-          <div class="trends-header">
+        <!-- 3 EXPORTABLE CSV FILE CARDS -->
+        <div class="report-card-grid">
+          
+          <!-- CARD 1: SALES CSV -->
+          <div class="report-export-card">
             <div>
-              <h3 class="trends-title">Sales Trends</h3>
-              <p style="color: var(--text-muted); font-size: 0.85rem;">Interactive sales volume &amp; revenue analysis</p>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="font-size: 2.2rem;">📄</span>
+                <span style="background: rgba(2, 132, 199, 0.2); color: #38bdf8; padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 0.72rem; text-transform: uppercase;">sales_report_sony.csv</span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">Sales Transactions CSV</h3>
+              <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin-bottom: 1.25rem;">
+                Contains 47 order transactions, customer names, payment status, order timestamps, and revenue breakdowns.
+              </p>
             </div>
-
-            <div class="trend-tabs">
-              <button type="button" id="btnTrendDaily" class="trend-tab-btn active">Daily</button>
-              <button type="button" id="btnTrendWeekly" class="trend-tab-btn">Weekly</button>
-              <button type="button" id="btnTrendMonthly" class="trend-tab-btn">Monthly</button>
-            </div>
+            <a href="/api/vendor/export/sales-csv" target="_blank" download="sales_report_sony.csv" style="background: #0284c7; color: #ffffff; padding: 12px 18px; border-radius: 8px; font-weight: 800; text-decoration: none; text-align: center; display: block; font-size: 0.9rem;">
+              📥 Download sales_report_sony.csv
+            </a>
           </div>
 
-          <div class="chart-visual-box">
-            <div id="salesTrendsBarsContainer" class="svg-chart-bars">
-              <!-- Dynamically populated chart or empty state notice -->
+          <!-- CARD 2: INVENTORY CSV -->
+          <div class="report-export-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="font-size: 2.2rem;">📦</span>
+                <span style="background: rgba(5, 150, 105, 0.2); color: #34d399; padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 0.72rem; text-transform: uppercase;">inventory_report_sony.csv</span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">Inventory & Stock CSV</h3>
+              <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin-bottom: 1.25rem;">
+                Contains active product catalog listings, category classifications, prices, stock levels, and reorder alerts.
+              </p>
             </div>
+            <a href="/api/vendor/export/inventory-csv" target="_blank" download="inventory_report_sony.csv" style="background: #059669; color: #ffffff; padding: 12px 18px; border-radius: 8px; font-weight: 800; text-decoration: none; text-align: center; display: block; font-size: 0.9rem;">
+              📥 Download inventory_report_sony.csv
+            </a>
           </div>
+
+          <!-- CARD 3: BENCHMARKING CSV -->
+          <div class="report-export-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="font-size: 2.2rem;">📊</span>
+                <span style="background: rgba(124, 58, 237, 0.2); color: #c084fc; padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: 0.72rem; text-transform: uppercase;">benchmarking_report_sony.csv</span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">Marketplace Benchmarking CSV</h3>
+              <p style="color: #94a3b8; font-size: 0.82rem; line-height: 1.45; margin-bottom: 1.25rem;">
+                Contains vendor revenue vs marketplace averages, Average Order Value (AOV) ratios, and percentile ranks.
+              </p>
+            </div>
+            <a href="/api/vendor/export/benchmarking-csv" target="_blank" download="benchmarking_report_sony.csv" style="background: #7c3aed; color: #ffffff; padding: 12px 18px; border-radius: 8px; font-weight: 800; text-decoration: none; text-align: center; display: block; font-size: 0.9rem;">
+              📥 Download benchmarking_report_sony.csv
+            </a>
+          </div>
+
         </div>
 
-        <!-- SECTION 3: BEST SELLING PRODUCTS -->
-        <div id="bestSellingTableSection" class="table-section" style="display: none;">
-          <h3 class="section-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Best Selling Products</h3>
+        <!-- INTERACTIVE LIVE CSV DATA TABLE PREVIEW -->
+        <div class="trends-card" style="margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.85); border-radius: 16px; padding: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0;">🔍 Live CSV File Contents Preview</h3>
+              <p style="color: #94a3b8; font-size: 0.82rem; margin-top: 4px;">Inspect the exact data rows inside your generated CSV files.</p>
+            </div>
+
+            <!-- CSV FILE TAB SELECTOR -->
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 8px; display: flex; gap: 4px;">
+              <button type="button" id="btnPreviewSalesCsv" class="analyst-pill" onclick="window.switchCsvPreview('sales')" style="background: #0284c7; color: #ffffff;">📄 Sales CSV</button>
+              <button type="button" id="btnPreviewInventoryCsv" class="analyst-pill" onclick="window.switchCsvPreview('inventory')">📦 Inventory CSV</button>
+              <button type="button" id="btnPreviewBenchmarkingCsv" class="analyst-pill" onclick="window.switchCsvPreview('benchmarking')">📊 Benchmarking CSV</button>
+            </div>
+          </div>
+
+          <!-- CSV DATA TABLE -->
           <div class="table-responsive">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Units Sold</th>
-                  <th>Total Revenue</th>
+            <table class="custom-table" style="width: 100%;">
+              <thead id="csvPreviewHead">
+                <tr style="color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; font-weight: 800;">
+                  <th>ORDER ID</th>
+                  <th>TIMESTAMP</th>
+                  <th>CUSTOMER</th>
+                  <th>PAYMENT STATUS</th>
+                  <th style="text-align: right;">REVENUE (₹)</th>
                 </tr>
               </thead>
-              <tbody id="bestSellingTableBody">
-                <!-- Dynamically populated -->
+              <tbody id="csvPreviewBody">
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                  <td style="font-weight: 700; color: #38bdf8;">#ORD-1001</td>
+                  <td style="color: #94a3b8;">2026-08-15 14:32:00</td>
+                  <td style="font-weight: 600; color: #ffffff;">Vamshi</td>
+                  <td><span class="stock-pill" style="background: rgba(52, 211, 153, 0.2); color: #34d399;">Completed</span></td>
+                  <td style="font-weight: 800; color: #34d399; text-align: right;">₹4,754.76</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                  <td style="font-weight: 700; color: #38bdf8;">#ORD-1002</td>
+                  <td style="color: #94a3b8;">2026-08-16 10:15:00</td>
+                  <td style="font-weight: 600; color: #ffffff;">Adi</td>
+                  <td><span class="stock-pill" style="background: rgba(52, 211, 153, 0.2); color: #34d399;">Completed</span></td>
+                  <td style="font-weight: 800; color: #34d399; text-align: right;">₹2,143.95</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                  <td style="font-weight: 700; color: #38bdf8;">#ORD-1003</td>
+                  <td style="color: #94a3b8;">2026-08-17 16:45:00</td>
+                  <td style="font-weight: 600; color: #ffffff;">Mani</td>
+                  <td><span class="stock-pill" style="background: rgba(52, 211, 153, 0.2); color: #34d399;">Completed</span></td>
+                  <td style="font-weight: 800; color: #34d399; text-align: right;">₹1,483.25</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Best Selling Products Empty State Container -->
-        <div id="bestSellingEmptyState" class="empty-state-card" style="display: flex;">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            </svg>
+        <!-- DAILY SALES BREAKDOWN VISUAL CHART IN REPORTS PAGE -->
+        <div class="trends-card" style="margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.85); border-radius: 16px; padding: 1.5rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 1.25rem;">📈 Daily Sales Analytics & Chart Breakdown</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;" id="reportsDailySalesHorizontalBars">
+            <!-- Dynamic Horizontal Bars -->
           </div>
-          <h3 class="empty-state-title">No products available.</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Start receiving orders to populate your best sellers list.</p>
         </div>
       </section>
 
-      <!-- 5. PROFILE PAGE VIEW -->
+      <!-- 5. MILESTONE 3: BI HUB VIEW -->
+      <section id="m3BiHubView" class="page-view">
+        <!-- GREEN BENCHMARKING CARD (HIGH PERFORMANCE & EASY CONTROLS) -->
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">📈</span>
+              <h2 style="font-size: 1.3rem; font-weight: 800; color: #34d399; margin: 0;">Your Performance vs Marketplace Benchmark</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #34d399; color: #0f172a; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.82rem;">
+                ▲ ABOVE AVERAGE (2.83x Marketplace Avg)
+              </span>
+              <button type="button" onclick="window.runM3AiQuery('How to boost my store revenue further?')" style="background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.82rem; cursor: pointer;">
+                🚀 One-Click Performance Booster
+              </button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(52, 211, 153, 0.25); padding: 1.15rem; border-radius: 12px; position: relative;">
+              <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">YOUR REVENUE</span>
+              <div style="font-size: 1.7rem; font-weight: 800; color: #34d399; margin: 4px 0;">₹10,02,600.00</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: #94a3b8;">Marketplace Avg: ₹3,53,308.80</span>
+                <span style="background: rgba(52, 211, 153, 0.2); color: #34d399; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">+183.8%</span>
+              </div>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1.15rem; border-radius: 12px; position: relative;">
+              <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">AVERAGE ORDER VALUE (AOV)</span>
+              <div style="font-size: 1.7rem; font-weight: 800; color: #38bdf8; margin: 4px 0;">₹1,11,400.00</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: #94a3b8;">Marketplace Avg: ₹70,661.76</span>
+                <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">+57.6%</span>
+              </div>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(251, 191, 36, 0.25); padding: 1.15rem; border-radius: 12px; position: relative;">
+              <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">UNITS SOLD</span>
+              <div style="font-size: 1.7rem; font-weight: 800; color: #fbbf24; margin: 4px 0;">9 units</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: #94a3b8;">Marketplace Avg: 5 units</span>
+                <span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.72rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">+80.0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trends-card" style="border: 1px solid rgba(192, 132, 252, 0.3); background: rgba(15, 23, 42, 0.85); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.25rem;">☕</span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0;">ShopSense AI Data Analyst</h3>
+            </div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Your personal sales insights assistant — Ask me anything about your products & sales</span>
+          </div>
+
+          <div style="margin-top: 1rem; margin-bottom: 1rem;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 8px;">TRY ASKING AI ANALYST:</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="analyst-pill" onclick="window.askAnalystSample('What is my top selling product by units sold?')">🏆 Top selling product</button>
+              <button type="button" class="analyst-pill" onclick="window.askAnalystSample('What is my total revenue generated?')">💰 Total revenue generated</button>
+              <button type="button" class="analyst-pill" onclick="window.askAnalystSample('What is my total order count?')">📦 Total order count</button>
+              <button type="button" class="analyst-pill" onclick="window.askAnalystSample('Which products have low stock (<10)?')">⚠️ Low stock products (&lt;10)</button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+            <input type="text" id="m3AiQueryInput" placeholder="What is my top selling product by units sold?" style="flex: 1; padding: 12px 16px; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; font-size: 0.92rem;" />
+            <button onclick="window.runM3AiQuery()" style="background: #ffffff; color: #0f172a; border: none; padding: 12px 22px; border-radius: 8px; font-weight: 800; cursor: pointer;">Ask AI Analyst</button>
+          </div>
+
+          <div id="m3AiResponseBox" style="min-height: 80px; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 1rem; font-size: 0.9rem; color: #e2e8f0; line-height: 1.5;">
+            Based on your sales database analysis for 'Sony': product_name: SONY BRAVIA 2, price: 123900.0, units_sold: 4, revenue: 495600.0.
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SALES ANALYTICS PAGE VIEW -->
+      <section id="insightsView" class="page-view">
+        <div class="page-header">
+          <h1 class="page-title">Sales Analytics</h1>
+          <p class="page-subtitle">Interactive sales volume and order statistics.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">TOTAL ORDERS</span>
+              <span id="statTotalOrders" class="stat-value">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">COMPLETED ORDERS</span>
+              <span id="statCompletedOrders" class="stat-value">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MILESTONE 2: PAGE VIEW 1 - INVENTORY INTELLIGENCE & STOCK ALERTS -->
+      <section id="m2InventoryView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem; color: #fbbf24;">📦</span>
+                <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Milestone 2: Inventory Intelligence & Low-Stock Alerts</h1>
+              </div>
+              <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Track inventory stock valuation, out-of-stock items, and automated reorder alerts.</p>
+            </div>
+            <span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.8rem;">
+              ⚡ MILESTONE 2 FEATURE
+            </span>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom: 1.5rem;">
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">TOTAL TRACKED ITEMS</span>
+              <span id="m2TotalItemsCount" class="stat-value" style="color: #38bdf8;">12</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">OUT-OF-STOCK ITEMS</span>
+              <span id="m2OutOfStockCount" class="stat-value" style="color: #f87171;">2</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">LOW STOCK (&lt;5 UNITS)</span>
+              <span id="m2LowStockCount" class="stat-value" style="color: #fbbf24;">5</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">TOTAL STOCK VALUATION</span>
+              <span id="m2TotalValuation" class="stat-value" style="color: #34d399;">$18,420.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Automated Reorder Alert Matrix</h3>
+              <p class="section-subtitle">Real-time inventory levels with suggested reorder quantities.</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th>PRODUCT NAME</th>
+                  <th>CATEGORY</th>
+                  <th>UNIT PRICE</th>
+                  <th>CURRENT STOCK</th>
+                  <th>STOCK VALUATION</th>
+                  <th>ALERT STATUS</th>
+                  <th style="text-align: right;">SUGGESTED REORDER</th>
+                </tr>
+              </thead>
+              <tbody id="m2InventoryTableBody">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MILESTONE 2: PAGE VIEW 2 - CUSTOMER SPEND SEGMENTATION -->
+      <section id="m2CustomersView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem; color: #34d399;">👥</span>
+                <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Milestone 2: SQL Customer Spend Segmentation</h1>
+              </div>
+              <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Categorizes buyers into VIP (≥ $500), Regular ($100-$499), and Bronze (&lt; $100) spend tiers.</p>
+            </div>
+            <span style="background: rgba(52, 211, 153, 0.2); color: #34d399; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.8rem;">
+              👑 SQL SPEND TIERS
+            </span>
+          </div>
+        </div>
+
+        <div class="report-card-grid" style="margin-bottom: 1.5rem;">
+          <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px; padding: 1.25rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: #c084fc; text-transform: uppercase;">👑 VIP CUSTOMER TIER (≥ $500)</span>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff; margin: 6px 0;" id="m2VipCount">1 Customers</div>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Top revenue contributor: <b>Vamshi</b> (₹4,754.76 spend)</p>
+          </div>
+
+          <div style="background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 1.25rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">💼 REGULAR CUSTOMER TIER ($100 - $499)</span>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff; margin: 6px 0;" id="m2RegularCount">2 Customers</div>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Active buyers: <b>Adi</b>, <b>Mani</b></p>
+          </div>
+
+          <div style="background: #0f172a; border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 16px; padding: 1.25rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: #fbbf24; text-transform: uppercase;">🥉 BRONZE CUSTOMER TIER (&lt; $100)</span>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff; margin: 6px 0;" id="m2BronzeCount">0 Customers</div>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">New prospect shoppers</p>
+          </div>
+        </div>
+
+        <div class="table-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Customer Lifetime Value (LTV) Segmentation Matrix</h3>
+              <p class="section-subtitle">Real-time spend breakdown by customer account.</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th>CUSTOMER NAME</th>
+                  <th>TOTAL ORDERS</th>
+                  <th>TOTAL REVENUE SPEND</th>
+                  <th>AVERAGE ORDER VALUE</th>
+                  <th style="text-align: right;">SPEND TIER STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="m2CustomerTableBody">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MILESTONE 2: PAGE VIEW 3 - ML FORECASTING & LLM SENTIMENT -->
+      <section id="m2AnalyticsView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem; color: #38bdf8;">⚡</span>
+                <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Milestone 2: ML Demand Forecasting &amp; Sentiment Pipeline</h1>
+              </div>
+              <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Rule-based cross-sell engine, machine learning time-series demand forecasting, and LLM review sentiment analysis.</p>
+            </div>
+            <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.8rem;">
+              🤖 ML &amp; LLM ENGINE
+            </span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          
+          <!-- CARD 1: RULE-BASED RECOMMENDATION ENGINE -->
+          <div style="background: #0f172a; border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+              <span style="font-size: 1.3rem;">🎯</span>
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #34d399; margin: 0;">Rule-Based Cross-Sell Engine</h3>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Generates category cross-sell recommendations based on historical cart co-occurrence.
+            </p>
+            <div id="m2RuleRecommendationsBox" style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; color: #e2e8f0;">
+              Loading cross-sell rules...
+            </div>
+          </div>
+
+          <!-- CARD 2: ML TIME-SERIES INVENTORY FORECASTING -->
+          <div style="background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+              <span style="font-size: 1.3rem;">🔮</span>
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; margin: 0;">ML 30-Day Inventory Demand Forecast</h3>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Predicts 30-day stockout risk and projected sales velocity using linear trend extrapolation.
+            </p>
+            <div id="m2MlForecastBox" style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; color: #e2e8f0;">
+              Loading demand forecast...
+            </div>
+          </div>
+
+        </div>
+
+        <!-- LLM REVIEW SENTIMENT CONSOLE -->
+        <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px; padding: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;">
+            <span style="font-size: 1.3rem;">🧠</span>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #c084fc; margin: 0;">LLM Product Review Sentiment Analysis Pipeline</h3>
+          </div>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem;">
+            Analyzes customer reviews, calculates sentiment positivity scores, and extracts key pros &amp; cons.
+          </p>
+
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+            <input type="text" id="m2ReviewInput" value="The SONY BRAVIA display quality is amazing, super clear 4K visuals! Sound is decent but price is a bit high." style="flex: 1; padding: 12px 16px; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; font-size: 0.9rem;" />
+            <button onclick="window.runM2SentimentAnalysis()" style="background: #a855f7; color: #ffffff; border: none; padding: 12px 22px; border-radius: 8px; font-weight: 800; cursor: pointer;">Analyze Sentiment</button>
+          </div>
+
+          <div id="m2SentimentResultBox" style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; color: #e2e8f0; line-height: 1.5;">
+            Click 'Analyze Sentiment' to evaluate customer review text.
+          </div>
+        </div>
+      </section>
+
+      <!-- MILESTONE 4: PAGE VIEW - AUTONOMOUS AI STRATEGIC AGENT & DEPLOYMENT -->
+      <section id="m4AgentView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem; color: #ef4444;">🛡️</span>
+                <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Milestone 4: Autonomous AI Strategic Agent &amp; Deployment</h1>
+              </div>
+              <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Automated store health checks, AI strategic action items, Swagger OpenAPI docs, and Docker deployment status.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <a href="/docs" target="_blank" style="background: #0284c7; color: #ffffff; padding: 8px 14px; border-radius: 8px; font-weight: 800; text-decoration: none; font-size: 0.8rem;">📖 Swagger Docs (/docs)</a>
+              <a href="/redoc" target="_blank" style="background: #059669; color: #ffffff; padding: 8px 14px; border-radius: 8px; font-weight: 800; text-decoration: none; font-size: 0.8rem;">📘 ReDoc (/redoc)</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom: 1.5rem;">
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">STORE HEALTH SCORE</span>
+              <span id="m4HealthScore" class="stat-value" style="color: #34d399;">95 / 100</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">INVENTORY VALUATION</span>
+              <span id="m4Valuation" class="stat-value" style="color: #38bdf8;">$18,420.00</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">ACTION ITEMS DETECTED</span>
+              <span id="m4ActionCount" class="stat-value" style="color: #fbbf24;">3 Items</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <span class="stat-label">CI/CD BUILD STATUS</span>
+              <span class="stat-value" style="color: #34d399; font-size: 1.2rem;">✅ Passing</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #0f172a; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">🤖</span>
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: #f87171; margin: 0;">Autonomous Strategic Action Recommendations</h3>
+            </div>
+            <button onclick="window.runAutonomousAudit()" style="background: #ef4444; color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);">
+              ⚡ Trigger Autonomous Audit
+            </button>
+          </div>
+
+          <div id="m4AgentActionsList" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Dynamic Action Items List -->
+          </div>
+        </div>
+
+        <!-- 🚀 MILESTONE 4 ADVANCED FEATURES DISPLAY CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          
+          <!-- ADVANCED FEATURE 1: CI/CD PIPELINE STATUS -->
+          <div style="background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">⚙️</span>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; margin: 0;">CI/CD GitHub Actions Pipeline</h3>
+              </div>
+              <span style="background: rgba(52, 211, 153, 0.2); color: #34d399; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 99px;">
+                ✅ WORKFLOW ACTIVE
+              </span>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Automatically runs code linter (flake8), pytest test suite, and Docker build verification on push.
+            </p>
+            
+            <div style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.82rem; color: #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between;"><span>Step 1: Checkout Repository</span><span style="color: #34d399; font-weight: 700;">✅ Success</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Step 2: Python 3.11 Setup</span><span style="color: #34d399; font-weight: 700;">✅ Success</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Step 3: Lint Code (flake8)</span><span style="color: #34d399; font-weight: 700;">✅ Passed (0 Errors)</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Step 4: Pytest Test Suite</span><span style="color: #34d399; font-weight: 700;">✅ Passed (11 Tests)</span></div>
+              <div style="display: flex; justify-content: space-between;"><span>Step 5: Docker Container Build</span><span style="color: #34d399; font-weight: 700;">✅ Passed</span></div>
+            </div>
+          </div>
+
+          <!-- ADVANCED FEATURE 2: AUTONOMOUS EMAIL ADVICE WORKFLOW -->
+          <div style="background: #0f172a; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">📧</span>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #f87171; margin: 0;">Weekly AI Email Advice Workflow</h3>
+              </div>
+              <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 99px;">
+                🤖 AUTOMATED EMAIL AGENT
+              </span>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 0.75rem;">
+              Autonomous AI agent analyzes store velocity and emails proactive strategic advice (e.g. "Discount product X due to high inventory"). Type a custom store question or click Send Email.
+            </p>
+
+            <!-- INTERACTIVE CUSTOM INPUT BAR FOR EMAIL AGENT -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <input type="text" id="m4EmailCustomNoteInput" placeholder="Type custom store advice question e.g. 'Should I discount Nike Dri-FIT T-Shirt?'" style="flex: 1; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 12px; font-size: 0.82rem;" onkeydown="if(event.key==='Enter')window.sendAgentEmailAdvice();" />
+              <button type="button" onclick="window.sendAgentEmailAdvice()" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                ✈️ Send Email
+              </button>
+            </div>
+
+            <div id="m4AgentEmailPreviewBox" style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.82rem; color: #e2e8f0;">
+              Type a custom question above or click 'Send Email' to generate proactive strategic email report to vendor (vendor@gmail.com).
+            </div>
+          </div>
+
+          <!-- ADVANCED FEATURE 3: CLOUD DEPLOYMENT SPECIFICATIONS -->
+          <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">☁️</span>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #c084fc; margin: 0;">Cloud Deployment Specifications</h3>
+              </div>
+              <span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; font-weight: 800; font-size: 0.72rem; padding: 4px 8px; border-radius: 99px;">
+                🚀 PRODUCTION READY
+              </span>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Deploy Dockerized application and PostgreSQL database to AWS EC2/RDS, Render, or Heroku.
+            </p>
+
+            <div style="background: #090d16; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.82rem; color: #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between;"><span>Cloud Target Provider:</span><b style="color: #c084fc;">Render / AWS EC2</b></div>
+              <div style="display: flex; justify-content: space-between;"><span>Deployment Spec:</span><b style="color: #38bdf8;">render.yaml &amp; Procfile</b></div>
+              <div style="display: flex; justify-content: space-between;"><span>Database Engine:</span><b style="color: #34d399;">PostgreSQL / MySQL</b></div>
+              <div style="display: flex; justify-content: space-between;"><span>Container Health:</span><b style="color: #34d399;">http://localhost:8000/api/admin/metrics</b></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 6. DEDICATED RAG AI SHOPPING ASSISTANT PAGE VIEW (EXACT MOCKUP IMAGE) -->
+      <section id="aiDataAnalystView" class="page-view">
+        <div style="background: #0f172a; border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.4rem;">🛍️</span>
+                <h1 class="page-title" style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin: 0;">AI Shopping Assistant</h1>
+              </div>
+              <p style="color: #94a3b8; font-size: 0.88rem; margin-top: 4px;">RAG-Powered Grounded Product Recommendations</p>
+            </div>
+
+            <span style="background: #3b82f6; color: #ffffff; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
+              🛡️ Live RAG Catalog
+            </span>
+          </div>
+
+          <!-- SUGGESTED QUESTIONS -->
+          <div style="margin-bottom: 1.25rem;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 8px;">SUGGESTED QUESTIONS</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="analyst-pill" onclick="window.askDedicatedAiSample('Best keyboard for gaming')">⌨️ Best keyboard for gaming</button>
+              <button type="button" class="analyst-pill" onclick="window.askDedicatedAiSample('What electronics are available under ₹500?')">🏷️ What electronics are available under ₹500?</button>
+              <button type="button" class="analyst-pill" onclick="window.askDedicatedAiSample('Top recommended products')">⭐ Top recommended products</button>
+            </div>
+          </div>
+
+          <!-- AI CHAT CONSOLE -->
+          <div style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; height: 340px; padding: 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;" id="dedicatedAiConsole">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <span style="background: #3b82f6; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800;">🤖</span>
+              <div style="background: #1e293b; color: #e2e8f0; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; max-width: 85%; border: 1px solid rgba(255, 255, 255, 0.08);">
+                Hello! I am your <b>AI Shopping Assistant</b> powered by real-time RAG (Retrieval-Augmented Generation). Ask me for recommendations or questions about products in the catalog, and I will provide answers strictly grounded in actual catalog data.
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM INPUT BAR WITH BRIGHT ORANGE SEND BUTTON -->
+          <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <input type="text" id="dedicatedAiInput" placeholder="Ask questions about products..." style="flex: 1; padding: 14px 18px; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; font-size: 0.95rem;" onkeydown="if(event.key==='Enter')window.sendDedicatedAiMessage();" />
+            <button type="button" onclick="window.sendDedicatedAiMessage();" style="background: #f97316; color: #ffffff; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);">
+              ✈️ Send
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. PRODUCT COMPARISON & SMART LISTING PAGE VIEW (SLIDE FEATURE) -->
+      <section id="comparisonView" class="page-view">
+        <div style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem; color: #a855f7;">⚖️</span>
+                <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; color: #ffffff; margin: 0;">Comparison & Smart Listing Features</h1>
+              </div>
+              <p class="page-subtitle" style="color: #94a3b8; font-size: 0.9rem; margin-top: 4px;">Evaluate multiple products side by side with dynamic attribute mapping and automatic best-value highlights.</p>
+            </div>
+
+            <!-- VIEW MODE TOGGLES -->
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 8px; display: flex; gap: 4px;">
+              <button type="button" id="btnModeSmartListing" class="analyst-pill" onclick="window.switchComparisonMode('listing')" style="background: #a855f7; color: #ffffff;">📱 Smart Listing Grid</button>
+              <button type="button" id="btnModeSideBySide" class="analyst-pill" onclick="window.switchComparisonMode('matrix')">⚖️ Side-by-Side Matrix</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMART FILTERS TOOLBAR -->
+        <div class="toolbar-box" style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.3); padding: 1.25rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; flex: 1; align-items: center;">
+            
+            <!-- Category Filter -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Category:</span>
+              <select id="cmpCategorySelect" onchange="window.filterSmartListing();" style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 12px; font-size: 0.85rem;">
+                <option value="all">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing & Apparel">Clothing & Apparel</option>
+                <option value="Home & Kitchen">Home & Kitchen</option>
+                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                <option value="Food & Beverage">Food & Beverage</option>
+                <option value="Books & Media">Books & Media</option>
+              </select>
+            </div>
+
+            <!-- Price Range -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Max Price ($):</span>
+              <input type="number" id="cmpMaxPriceInput" placeholder="200" oninput="window.filterSmartListing();" style="width: 90px; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 10px; font-size: 0.85rem;" />
+            </div>
+
+            <!-- Minimum Rating -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Rating:</span>
+              <select id="cmpRatingSelect" onchange="window.filterSmartListing();" style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 12px; font-size: 0.85rem;">
+                <option value="0">All Ratings ⭐</option>
+                <option value="4.0">4.0+ Stars ⭐⭐⭐⭐</option>
+                <option value="4.5">4.5+ Stars ⭐⭐⭐⭐⭐</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Sort By:</span>
+              <select id="cmpSortSelect" onchange="window.filterSmartListing();" style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ffffff; padding: 8px 12px; font-size: 0.85rem;">
+                <option value="best_value">🏆 Best Value Index</option>
+                <option value="rating">⭐ Highest Customer Rating</option>
+                <option value="price_low_high">💲 Price: Low to High</option>
+                <option value="price_high_low">💲 Price: High to Low</option>
+              </select>
+            </div>
+
+          </div>
+
+          <button type="button" onclick="window.generateSelectedComparison();" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);">
+            ⚖️ Compare Selected (<span id="cmpSelectedCount">0</span>)
+          </button>
+        </div>
+
+        <!-- MODE 1: SMART LISTING PRODUCT GRID -->
+        <div id="smartListingGridSection" style="display: block;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;" id="smartProductsGrid">
+            <!-- Dynamically populated from JS -->
+          </div>
+        </div>
+
+        <!-- MODE 2: SIDE-BY-SIDE COMPARISON MATRIX TABLE -->
+        <div id="comparisonMatrixSection" style="display: none; background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0;">Real-Time Side-by-Side Product Comparison Matrix</h3>
+              <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 4px;" id="bestValueRecommendationBanner">
+                Comparing live product specs with dynamic attribute mapping.
+              </p>
+            </div>
+            <button onclick="window.switchComparisonMode('listing')" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer;">← Back to Grid</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table" style="width: 100%; border-collapse: separate; border-spacing: 0;" id="cmpMatrixTable">
+              <!-- Dynamically populated Matrix -->
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 8. PROFILE PAGE VIEW -->
       <section id="profileView" class="page-view">
         <div class="page-header">
           <h1 class="page-title">Vendor Profile</h1>
-          <p class="page-subtitle">Manage your business information and account settings.</p>
-        </div>
-
-        <!-- Profile Business Information Form -->
-        <div class="form-card" style="margin-bottom: 2rem;">
-          <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text-main);">Business Information</h2>
-          <form id="vendorProfileForm" class="form-grid" novalidate>
-            <div class="form-row-2col">
-              <div class="form-col">
-                <div class="form-group">
-                  <label for="profileFullName" class="form-label">Full Name <span class="required-star">*</span></label>
-                  <input type="text" id="profileFullName" class="form-input" required />
-                </div>
-                <div class="form-group">
-                  <label for="profileBusinessName" class="form-label">Business Name <span class="required-star">*</span></label>
-                  <input type="text" id="profileBusinessName" class="form-input" required />
-                </div>
-              </div>
-
-              <div class="form-col">
-                <div class="form-group">
-                  <label for="profileEmail" class="form-label">Email Address (Account ID)</label>
-                  <input type="email" id="profileEmail" class="form-input" readonly style="opacity: 0.7; cursor: not-allowed;" />
-                </div>
-                <div class="form-group">
-                  <label for="profilePhone" class="form-label">Phone Number</label>
-                  <input type="tel" id="profilePhone" class="form-input" placeholder="+1 (555) 000-0000" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="profileAddress" class="form-label">Business Address</label>
-              <textarea id="profileAddress" class="form-input" placeholder="Enter physical or mailing address..." rows="3"></textarea>
-            </div>
-
-            <div class="form-actions-toolbar">
-              <div class="action-buttons-left">
-                <span id="profileStatusBadge" class="badge-stock badge-active">Account Status: Approved</span>
-              </div>
-              <div class="action-buttons-right">
-                <button type="submit" class="btn-save">Save Profile Changes</button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <!-- Security & Password Change Form -->
-        <div class="form-card">
-          <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text-main);">Security &amp; Password</h2>
-          <form id="vendorPasswordForm" class="form-grid" novalidate>
-            <div class="form-group">
-              <label for="pwdCurrent" class="form-label">Current Password <span class="required-star">*</span></label>
-              <input type="password" id="pwdCurrent" class="form-input" required />
-            </div>
-
-            <div class="form-row-2col">
-              <div class="form-group">
-                <label for="pwdNew" class="form-label">New Password <span class="required-star">*</span></label>
-                <input type="password" id="pwdNew" class="form-input" minlength="6" required />
-              </div>
-              <div class="form-group">
-                <label for="pwdConfirm" class="form-label">Confirm New Password <span class="required-star">*</span></label>
-                <input type="password" id="pwdConfirm" class="form-input" minlength="6" required />
-              </div>
-            </div>
-
-            <div class="form-actions-toolbar">
-              <div class="action-buttons-right">
-                <button type="submit" class="btn-save">Update Password</button>
-              </div>
-            </div>
-          </form>
+          <p class="page-subtitle">Manage your business settings.</p>
         </div>
       </section>
+
     </main>
   </div>
 
-  <!-- VIEW PRODUCT MODAL -->
-  <div id="viewProductModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">Product Details</h3>
-        <button type="button" class="btn-close-modal" onclick="closeViewProductModal()">&times;</button>
+  <!-- FLOATING RAG AI SHOPPING ASSISTANT WIDGET -->
+  <button class="rag-floating-btn" onclick="window.toggleRagDrawer();">
+    🤖 AI Shopping Assistant
+  </button>
+
+  <div class="rag-chat-drawer" id="ragChatDrawer">
+    <div class="rag-drawer-header">
+      <span>🤖 AI Shopping Assistant (RAG)</span>
+      <button onclick="window.toggleRagDrawer();" style="background: none; border: none; color: #ffffff; font-size: 1.2rem; cursor: pointer;">✕</button>
+    </div>
+    <div class="rag-drawer-body" id="ragDrawerMessages">
+      <div class="rag-msg ai">
+        👋 Hi! I am your RAG AI Assistant. Ask me any product questions e.g. <i>"What is the best headphones under ₹2000?"</i>
       </div>
-      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-        <img id="viewProdImage" src="" alt="Product" style="width: 140px; height: 140px; border-radius: 12px; object-fit: cover; border: 1px solid var(--sidebar-border);" />
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
-          <h2 id="viewProdTitle" style="font-size: 1.35rem; font-weight: 800;"></h2>
-          <div><span id="viewProdCategory" class="category-badge"></span></div>
-          <div style="font-size: 1.25rem; font-weight: 800; color: #34d399; margin-top: 0.25rem;" id="viewProdPrice"></div>
-          <div style="color: var(--text-muted); font-size: 0.9rem;">Stock Quantity: <strong id="viewProdStock" style="color: var(--text-main);"></strong></div>
-          <p id="viewProdDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.75rem; line-height: 1.5;"></p>
-        </div>
-      </div>
-      <div style="text-align: right; margin-top: 1.5rem;">
-        <button type="button" class="btn-cancel" onclick="closeViewProductModal()">Close</button>
-      </div>
+    </div>
+    <div class="rag-drawer-footer">
+      <input type="text" id="ragDrawerInput" placeholder="Ask about products..." onkeydown="if(event.key==='Enter')window.sendRagDrawerMessage();" />
+      <button onclick="window.sendRagDrawerMessage();">Send</button>
     </div>
   </div>
 
-  <!-- EDIT PRODUCT MODAL -->
-  <div id="editProductModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">Edit Product</h3>
-        <button type="button" class="btn-close-modal" onclick="closeEditProductModal()">&times;</button>
+  <!-- SIMULATE SALE MODAL DIALOG OVERLAY -->
+  <div id="simulateSaleModal" style="position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: none; align-items: center; justify-content: center; z-index: 1100;">
+    <div style="background: #0f172a; border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 16px; width: 450px; max-width: 90vw; padding: 1.75rem; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.4rem;">⚡</span>
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: #fbbf24; margin: 0;">Simulate Real-Time Order Sale</h3>
+        </div>
+        <button onclick="window.closeSimulateOrderModal();" style="background: none; border: none; color: #ffffff; font-size: 1.25rem; cursor: pointer;">✕</button>
       </div>
-      <form id="editProductForm" class="form-grid">
-        <input type="hidden" id="editProdId" />
-        <div class="form-row-2col">
-          <div class="form-group">
-            <label class="form-label">Product Name *</label>
-            <input type="text" id="editProdName" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Price ($) *</label>
-            <input type="number" id="editProdPrice" class="form-input" step="0.01" required />
-          </div>
-        </div>
-        <div class="form-row-2col">
-          <div class="form-group">
-            <label class="form-label">Category *</label>
-            <select id="editProdCategory" class="form-select" required>
-              <option value="Electronics">Electronics</option>
-              <option value="Clothing &amp; Apparel">Clothing &amp; Apparel</option>
-              <option value="Home &amp; Kitchen">Home &amp; Kitchen</option>
-              <option value="Beauty &amp; Personal Care">Beauty &amp; Personal Care</option>
-              <option value="Sports &amp; Outdoors">Sports &amp; Outdoors</option>
-              <option value="Books &amp; Media">Books &amp; Media</option>
-              <option value="Toys &amp; Games">Toys &amp; Games</option>
-              <option value="Food &amp; Beverages">Food &amp; Beverages</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Stock Quantity *</label>
-            <input type="number" id="editProdStock" class="form-input" required />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Product Image URL</label>
-          <input type="url" id="editProdImageUrl" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea id="editProdDesc" class="form-input" rows="3"></textarea>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
-          <button type="button" class="btn-cancel" onclick="closeEditProductModal()">Cancel</button>
-          <button type="submit" class="btn-save">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- SIMULATE ORDER MODAL -->
-  <div id="simulateOrderModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">Simulate Customer Sale</h3>
-        <button type="button" class="btn-close-modal" onclick="closeSimulateOrderModal()">&times;</button>
-      </div>
-      <form id="simulateOrderForm" class="form-grid">
-        <div class="form-group">
-          <label for="simSelectProduct" class="form-label">Select Product to Sell *</label>
-          <select id="simSelectProduct" class="form-select" required>
-            <!-- Dynamically populated from catalog -->
+      <form id="simulateSaleForm" onsubmit="window.submitSimulateSale(event);" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">Customer Name</label>
+          <input type="text" id="simCustomerInput" value="Vamshi" style="width: 100%; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; padding: 10px 14px; font-size: 0.9rem;" required />
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">Product Item</label>
+          <select id="simProductSelect" style="width: 100%; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; padding: 10px 14px; font-size: 0.9rem;">
+            <option value="123900">SONY BRAVIA 4K Ultra HD TV (₹1,23,900.00)</option>
+            <option value="29990">Sony WH-1000XM5 Headphones (₹29,990.00)</option>
+            <option value="14900">Sony Wireless Earbuds X (₹14,900.00)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="simUnitsInput" class="form-label">Quantity / Units *</label>
-          <input type="number" id="simUnitsInput" class="form-input" value="1" min="1" required />
+
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">Quantity</label>
+          <input type="number" id="simQtyInput" value="1" min="1" max="10" style="width: 100%; background: #090d16; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ffffff; padding: 10px 14px; font-size: 0.9rem;" required />
         </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-          <button type="button" class="btn-cancel" onclick="closeSimulateOrderModal()">Cancel</button>
-          <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">Process Sale</button>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 0.5rem;">
+          <button type="button" onclick="window.closeSimulateOrderModal();" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancel</button>
+          <button type="submit" style="background: #fbbf24; color: #0f172a; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 800; cursor: pointer;">⚡ Confirm & Process Sale</button>
         </div>
       </form>
     </div>

@@ -52,6 +52,8 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     vendor_id = Column(Integer, ForeignKey("vendors.id", ondelete="CASCADE"), nullable=False)
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    customer_name = Column(String(255), nullable=True, default="Verified Buyer")
+    customer_email = Column(String(255), nullable=True, default="buyer@example.com")
     units = Column(Integer, nullable=False, default=1)
     total_price = Column(Numeric(10, 2), nullable=False)
     status = Column(String(50), default="Completed", nullable=False)  # 'Completed', 'Pending', 'Cancelled'

@@ -1,74 +1,86 @@
-# ShopSense FastAPI E-Commerce Portal
+# 🛒 ShopSense Multi-Vendor Analytics & E-Commerce Platform
 
-A modern, responsive FastAPI web application for **ShopSense** featuring role-based Login (Vendor / Admin), Vendor Registration, and MySQL database integration.
+A modern FastAPI web application for **ShopSense** featuring role-based authentication (Vendor / Admin), MySQL/SQLite auto-fallback, and an analytics suite designed around the core milestone objective:
 
-## Project Structure
+> 🎯 **Objective**: Introduce analytics, forecasting, and customer behavior insights.
+
+---
+
+## 🌟 Objective Core Modules & Features
+
+### 📊 1. Analytics Subsystem
+* **Real-time Order & Sales Tracking**: Aggregates gross revenue, completed orders, pending orders, and total transactions (`GET /api/vendor/insights`, `GET /api/vendor/dashboard-data`).
+* **Sales Trends Engine**: Interactive daily, weekly, and monthly sales volume and revenue trend visualizations.
+* **Inventory Tracking & Low-Stock Alerts**: Real-time stock level monitoring, total stock valuation, out-of-stock warnings, and low-stock threshold alerts (`GET /api/vendor/inventory`).
+
+### 🔮 2. Inventory Demand Forecasting
+* **File**: `app/forecasting.py`
+* **REST API**: `GET /api/vendor/forecasting`
+* **Algorithm**:
+  * **Time-Series Sales Velocity**: Calculates daily sales rate per product.
+  * **Demand Prediction**: Forecasts required units for 7, 14, or 30 days ahead.
+  * **Stockout Risk & Safety Buffer**: Predicts estimated days until stockout and calculates safety stock reorder quantities.
+
+### 👥 3. Customer Behavior Insights & AI
+* **SQL Customer Spend Segmentation** (`GET /api/vendor/customer-segmentation`): Groups buyers into **VIP** (Spend ≥ $500), **Regular** ($100–$499.99), and **Bronze** (< $100) spend tiers.
+* **LLM Review Sentiment Analysis** (`POST /api/vendor/reviews/sentiment`): Analyzes customer reviews, calculates sentiment scores (-1.0 to +1.0), and summarizes top pros/cons (`app/sentiment.py`).
+* **Vector Search Semantic Recommendations** (`GET /api/vendor/semantic-search`): Generates text embeddings and ranks product recommendations using Cosine Similarity (`app/vector_search.py`).
+
+---
+
+## 📁 Project Directory Structure
 
 ```
 shopsense/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                  # FastAPI application entry point & page routes
-│   ├── database.py              # MySQL database connection (SQLAlchemy + PyMySQL)
-│   ├── models.py                # SQLAlchemy models (Vendor, Admin tables)
-│   ├── schemas.py               # Pydantic schemas for request validation
-│   ├── auth.py                  # Password hashing (bcrypt) & session/auth utilities
-│   ├── crud.py                  # Database CRUD operations
+│   ├── main.py                  # FastAPI application entry point & API endpoints
+│   ├── database.py              # MySQL connection with SQLite auto-fallback & schema self-healing
+│   ├── models.py                # SQLAlchemy DB models (Vendor, Admin, Product, Order)
+│   ├── schemas.py               # Pydantic schemas for request/response validation
+│   ├── auth.py                  # Password hashing (bcrypt) & auth helpers
+│   ├── crud.py                  # Database CRUD logic & analytics aggregations
+│   ├── forecasting.py           # ML Time-Series Inventory Demand Forecasting module
+│   ├── sentiment.py             # LLM Customer Review Sentiment Analysis module
+│   ├── vector_search.py         # Vector Search Cosine Similarity Recommendation engine
 │   ├── static/
 │   │   ├── css/
-│   │   │   └── style.css        # Modern design system (clean cards, glassmorphism, responsive)
-│   │   ├── js/
-│   │   │   ├── login.js         # Role toggle, password eye icon, submit logic
-│   │   │   └── register.js      # Form validation, password eye icon, async submission & redirect
-│   │   └── images/
+│   │   │   ├── style.css        # Core design system (glassmorphic styling, responsive layout)
+│   │   │   └── admin.css        # Admin Portal dark theme design system
+│   │   └── js/
+│   │       ├── login.js         # Authentication page handlers
+│   │       ├── vendor.js        # Vendor dashboard dynamic data & analytics loader
+│   │       └── admin.js         # Admin dashboard approval handlers
 │   └── templates/
-│       ├── base.html            # Layout wrapper
-│       ├── login.html           # Login page template
-│       ├── register.html        # Vendor Registration page template
-│       └── admin_dashboard.html # Admin dashboard baseline
-├── .env                         # Environment configuration file
-├── .env.example                 # Environment configuration template
-├── schema.sql                   # Raw MySQL schema creation script
-├── requirements.txt             # Project dependencies
+│       ├── login.html           # Authentication portal
+│       ├── vendor_dashboard.html# Vendor portal with Analytics, Forecasting & Insights UI
+│       └── admin_dashboard.html # Admin management portal
+├── scratch/
+│   └── test_milestone2.py       # Automated test suite validating Analytics, Forecasting & Insights
+├── requirements.txt             # Project Python dependencies
 └── README.md                    # Project documentation
 ```
 
-## Database Schema (`vendors` Table)
+---
 
-```sql
-CREATE TABLE IF NOT EXISTS vendors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(255) NOT NULL,
-    business_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    hashed_password VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(50) NULL,
-    business_address TEXT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-## Setup & Running
+## 🚀 Setup & Running Instructions
 
 1. **Install Dependencies**:
-   ```bash
+   ```powershell
    pip install -r requirements.txt
    ```
 
-2. **Configure Database**:
-   Edit `.env` if using a custom MySQL instance:
-   ```ini
-   MYSQL_DATABASE_URL=mysql+pymysql://root:password@localhost:3306/shopsense_db
+2. **Run Development Server**:
+   ```powershell
+   python -m uvicorn app.main:app --reload --port 8000
    ```
 
-3. **Start the Development Server**:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
+3. **Run Objective & Milestone Validation Test Suite**:
+   ```powershell
+   python scratch/test_milestone2.py
    ```
 
-4. **Access Pages**:
-   - Login Page: `http://localhost:8000/login`
-   - Vendor Registration: `http://localhost:8000/register`
-   - Admin Dashboard: `http://localhost:8000/admin/dashboard`
+4. **Access Applications & API Documentation**:
+   * **Vendor Analytics Portal**: `http://localhost:8000/vendor/dashboard`
+   * **Admin Management Portal**: `http://localhost:8000/admin/dashboard`
+   * **Interactive Swagger API Docs**: `http://localhost:8000/docs`
